@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-const API_URL = 'http://localhost:3000/api/generate-poster';
+const API_URL = process.env.API_URL || 'http://localhost:3000/api/generate-poster';
 
 const TEST_POSTERS = [
   {
@@ -87,7 +87,7 @@ async function runTests() {
   const proofsDir = join(process.cwd(), 'public', 'proofs');
   mkdirSync(proofsDir, { recursive: true });
 
-  console.log('Sending render requests to localhost dev server...');
+  console.log('Sending render requests to configured API URL...');
   for (const test of TEST_POSTERS) {
     console.log(`Generating ${test.name}...`);
     try {
@@ -103,12 +103,12 @@ async function runTests() {
         continue;
       }
 
-      const buffer = Buffer.from(await res.arrayBuffer());
-      const dest = join(proofsDir, test.name);
-      writeFileSync(dest, buffer);
-      console.log(`✓ Saved ${test.name} (${(buffer.length / 1024).toFixed(1)} KB) to ${dest}`);
+      const arrayBuffer = await res.arrayBuffer();
+      const outputPath = join(proofsDir, test.name);
+      writeFileSync(outputPath, Buffer.from(arrayBuffer));
+      console.log(`Saved ${outputPath}`);
     } catch (err) {
-      console.error(`Error generating ${test.name}:`, err);
+      console.error(`Error while generating ${test.name}:`, err);
     }
   }
 }
