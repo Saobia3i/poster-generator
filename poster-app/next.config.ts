@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true, // poster images are generated server-side, not via next/image
   },
+
+  // CRITICAL for Vercel: public/ files are served via CDN and are NOT automatically
+  // available on the Lambda filesystem. outputFileTracingIncludes explicitly bundles
+  // these files into the serverless function so fs.readFileSync() can access them.
+  outputFileTracingIncludes: {
+    '/api/generate-poster': [
+      './public/templates/**/*',
+      './public/fonts/**/*',
+    ],
+  },
 };
 
 export default nextConfig;

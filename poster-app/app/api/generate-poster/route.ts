@@ -37,22 +37,30 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * Resolve a project-relative file path that works in all environments:
- *   - Local dev:         process.cwd() = poster-app/
- *   - Vercel monorepo:  process.cwd() = repo-root/ (poster-app is a subdirectory)
- * Tries candidate paths in order and returns the first one that exists.
+ * Resolve a project-relative file path that works in all environments.
+ * outputFileTracingIncludes in next.config.ts ensures Vercel bundles these
+ * files with the Lambda function. The traced files end up relative to cwd.
  */
 function resolveProjectFile(relativePath: string): string | null {
   const cwd = process.cwd();
   const candidates = [
-    path.join(cwd, relativePath),                          // local: cwd IS the app root
-    path.join(cwd, 'poster-app', relativePath),            // Vercel monorepo: cwd = repo root
+    path.join(cwd, relativePath),                // local dev & Vercel (rootDirectory=poster-app)
+    path.join(cwd, 'poster-app', relativePath),  // Vercel monorepo (rootDirectory not set)
+    path.join('/var/task', relativePath),         // Vercel Lambda absolute path
+    path.join('/var/task/poster-app', relativePath), // Vercel Lambda monorepo
   ];
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
+    try {
+      if (fs.existsSync(candidate)) {
+        console.log(`[assets] resolved: ${candidate}`);
+        return candidate;
+      }
+    } catch { /* ignore */ }
   }
+  console.warn(`[assets] NOT FOUND: ${relativePath} | cwd=${cwd}`);
   return null;
 }
+
 
 // ── Asset loader helper ────────────────────────────────────────────
 function loadAssetAsDataUrl(relativePath: string, mimeType: string): string | null {
