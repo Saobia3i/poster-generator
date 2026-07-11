@@ -20,11 +20,6 @@ import QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 
-// __dirname = .../poster-app/app/api/generate-poster/
-// APP_ROOT  = .../poster-app/
-// process.cwd() on Vercel monorepos = repo root (wrong!) — always use APP_ROOT
-const APP_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
-
 import { PosterFormSchema } from '@/lib/posterSchema';
 import { getSatoriFonts } from '@/lib/fontLoader';
 import { getContentTier } from '@/lib/logoScale';
@@ -41,20 +36,39 @@ import { BACKGROUND_TEMPLATES, SIZE_PRESETS, PRESET_TO_VARIANT } from '@/lib/the
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/**
+ * Resolve a project-relative file path that works in all environments:
+ *   - Local dev:         process.cwd() = poster-app/
+ *   - Vercel monorepo:  process.cwd() = repo-root/ (poster-app is a subdirectory)
+ * Tries candidate paths in order and returns the first one that exists.
+ */
+function resolveProjectFile(relativePath: string): string | null {
+  const cwd = process.cwd();
+  const candidates = [
+    path.join(cwd, relativePath),                          // local: cwd IS the app root
+    path.join(cwd, 'poster-app', relativePath),            // Vercel monorepo: cwd = repo root
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
 // ── Asset loader helper ────────────────────────────────────────────
 function loadAssetAsDataUrl(relativePath: string, mimeType: string): string | null {
+  const absPath = resolveProjectFile(relativePath);
+  if (!absPath) return null;
   try {
-    const absPath = path.join(APP_ROOT, relativePath);
     const buffer = fs.readFileSync(absPath);
     return `data:${mimeType};base64,${buffer.toString('base64')}`;
   } catch {
-    return null; // file missing — layout engine shows placeholder
+    return null;
   }
 }
 
 // ── History log helper ─────────────────────────────────────────────
 function appendToHistory(entry: object): void {
-  const historyPath = path.join(APP_ROOT, 'data', 'posters.json');
+  const historyPath = resolveProjectFile('data/posters.json') ?? path.join(process.cwd(), 'data', 'posters.json');
   try {
     let history: object[] = [];
     if (fs.existsSync(historyPath)) {

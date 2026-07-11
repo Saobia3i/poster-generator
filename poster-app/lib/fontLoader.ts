@@ -18,8 +18,21 @@ import path from 'path';
 import fs from 'fs';
 import zlib from 'zlib';
 
-// __dirname = .../poster-app/lib/  →  appRoot = .../poster-app/
-const APP_ROOT = path.resolve(__dirname, '..');
+/**
+ * Find a project-relative file, checking multiple candidate roots.
+ * Works in local dev (cwd = poster-app/) and Vercel monorepo (cwd = repo root).
+ */
+function resolveProjectFile(relativePath: string): string | null {
+  const cwd = process.cwd();
+  const candidates = [
+    path.join(cwd, relativePath),             // local dev: cwd IS the app root
+    path.join(cwd, 'poster-app', relativePath), // Vercel monorepo: cwd = repo root
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
 
 interface FontCache {
   oswaldBold: ArrayBuffer;
@@ -74,15 +87,12 @@ async function fetchFontFromGwfh(url: string, fontName: string): Promise<ArrayBu
   throw new Error(`No .ttf entry found in font zip for ${fontName}`);
 }
 
-/**
- * Read a font file relative to the Next.js app root.
- * Uses __dirname (lib/) → app root to be Vercel-monorepo-safe.
- */
 function readFontFile(relativePath: string): ArrayBuffer | null {
+  const absPath = resolveProjectFile(relativePath);
+  if (!absPath) return null;
   try {
-    const absPath = path.join(APP_ROOT, relativePath);
     const buffer = fs.readFileSync(absPath);
-    // Safely convert Node Buffer → ArrayBuffer (handles buffer pool byteOffset)
+    // Safely convert Node Buffer → ArrayBuffer (avoids buffer pool byteOffset issues)
     const ab = new ArrayBuffer(buffer.byteLength);
     new Uint8Array(ab).set(buffer);
     return ab;
