@@ -20,6 +20,11 @@ import QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 
+// __dirname = .../poster-app/app/api/generate-poster/
+// APP_ROOT  = .../poster-app/
+// process.cwd() on Vercel monorepos = repo root (wrong!) — always use APP_ROOT
+const APP_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+
 import { PosterFormSchema } from '@/lib/posterSchema';
 import { getSatoriFonts } from '@/lib/fontLoader';
 import { getContentTier } from '@/lib/logoScale';
@@ -39,7 +44,7 @@ export const dynamic = 'force-dynamic';
 // ── Asset loader helper ────────────────────────────────────────────
 function loadAssetAsDataUrl(relativePath: string, mimeType: string): string | null {
   try {
-    const absPath = path.join(process.cwd(), relativePath);
+    const absPath = path.join(APP_ROOT, relativePath);
     const buffer = fs.readFileSync(absPath);
     return `data:${mimeType};base64,${buffer.toString('base64')}`;
   } catch {
@@ -49,7 +54,7 @@ function loadAssetAsDataUrl(relativePath: string, mimeType: string): string | nu
 
 // ── History log helper ─────────────────────────────────────────────
 function appendToHistory(entry: object): void {
-  const historyPath = path.join(process.cwd(), 'data', 'posters.json');
+  const historyPath = path.join(APP_ROOT, 'data', 'posters.json');
   try {
     let history: object[] = [];
     if (fs.existsSync(historyPath)) {

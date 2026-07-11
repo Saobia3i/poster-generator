@@ -5,6 +5,9 @@
  * or next/font/google. This module loads font files from the filesystem
  * (/public/fonts/) and caches them for subsequent API calls.
  *
+ * CRITICAL: Uses __dirname-relative paths so this works correctly on Vercel
+ * even when process.cwd() is the monorepo root (not the Next.js app dir).
+ *
  * SETUP: Font files must be present in /public/fonts/
  * Run the following once to download them:
  *   node scripts/download-fonts.mjs
@@ -13,6 +16,10 @@
 
 import path from 'path';
 import fs from 'fs';
+import zlib from 'zlib';
+
+// __dirname = .../poster-app/lib/  →  appRoot = .../poster-app/
+const APP_ROOT = path.resolve(__dirname, '..');
 
 interface FontCache {
   oswaldBold: ArrayBuffer;
@@ -24,43 +31,61 @@ interface FontCache {
 let fontCache: FontCache | null = null;
 
 /**
- * Fetch a font zip from gwfh (google-webfonts-helper) and extract the first .ttf entry.
- * gwfh returns a zip archive — we extract the raw TTF bytes from it.
+ * Fetch a font zip from gwfh (google-webfonts-helper) and extract the .ttf entry.
+ * gwfh returns a zip archive. Entries may be stored (method 0) or deflated (method 8).
  */
 async function fetchFontFromGwfh(url: string, fontName: string): Promise<ArrayBuffer> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch font zip for ${fontName}: HTTP ${res.status}`);
-  const zipBuf = await res.arrayBuffer();
+  const zipBuf = Buffer.from(await res.arrayBuffer());
 
-  // Parse the zip to find the .ttf entry (minimal ZIP parser — local file header only)
-  const view = new DataView(zipBuf);
+  const view = new DataView(zipBuf.buffer, zipBuf.byteOffset, zipBuf.byteLength);
   let offset = 0;
+
   while (offset < view.byteLength - 4) {
-    if (view.getUint32(offset, true) !== 0x04034b50) break; // PK local file header
-    const filenameLen = view.getUint16(offset + 26, true);
-    const extraLen = view.getUint16(offset + 28, true);
-    const compressedSize = view.getUint32(offset + 18, true);
+    if (view.getUint32(offset, true) !== 0x04034b50) break; // PK local file header signature
+
     const compressionMethod = view.getUint16(offset + 8, true);
-    const filename = new TextDecoder().decode(new Uint8Array(zipBuf, offset + 30, filenameLen));
+    const compressedSize    = view.getUint32(offset + 18, true);
+    const uncompressedSize  = view.getUint32(offset + 22, true);
+    const filenameLen       = view.getUint16(offset + 26, true);
+    const extraLen          = view.getUint16(offset + 28, true);
+
+    const filename  = zipBuf.subarray(offset + 30, offset + 30 + filenameLen).toString('utf8');
     const dataStart = offset + 30 + filenameLen + extraLen;
-    if (filename.endsWith('.ttf') && compressionMethod === 0) {
-      // Stored (no compression) — slice directly
-      return zipBuf.slice(dataStart, dataStart + compressedSize);
+    const dataSlice = zipBuf.subarray(dataStart, dataStart + compressedSize);
+
+    if (filename.endsWith('.ttf')) {
+      if (compressionMethod === 0) {
+        // Stored — no decompression needed
+        return dataSlice.buffer.slice(dataSlice.byteOffset, dataSlice.byteOffset + dataSlice.byteLength);
+      } else if (compressionMethod === 8) {
+        // Deflate
+        const inflated = zlib.inflateRawSync(dataSlice, { maxOutputLength: uncompressedSize * 2 });
+        return inflated.buffer.slice(inflated.byteOffset, inflated.byteOffset + inflated.byteLength);
+      } else {
+        throw new Error(`Unsupported zip compression method ${compressionMethod} for ${fontName}`);
+      }
     }
+
     offset = dataStart + compressedSize;
   }
-  throw new Error(`No uncompressed .ttf entry found in font zip for ${fontName}`);
+
+  throw new Error(`No .ttf entry found in font zip for ${fontName}`);
 }
 
+/**
+ * Read a font file relative to the Next.js app root.
+ * Uses __dirname (lib/) → app root to be Vercel-monorepo-safe.
+ */
 function readFontFile(relativePath: string): ArrayBuffer | null {
   try {
-    const absPath = path.join(process.cwd(), relativePath);
+    const absPath = path.join(APP_ROOT, relativePath);
     const buffer = fs.readFileSync(absPath);
-    // Convert Node.js Buffer to ArrayBuffer
-    return buffer.buffer.slice(
-      buffer.byteOffset,
-      buffer.byteOffset + buffer.byteLength
-    ) as ArrayBuffer;
+    // Safely convert Node Buffer → ArrayBuffer (handles buffer pool byteOffset)
+    const ab = new ArrayBuffer(buffer.byteLength);
+    new Uint8Array(ab).set(buffer);
+    return ab;
   } catch {
     return null;
   }
@@ -69,12 +94,14 @@ function readFontFile(relativePath: string): ArrayBuffer | null {
 export async function loadFonts(): Promise<FontCache> {
   if (fontCache) return fontCache;
 
-  // Try filesystem first (fastest, no network)
-  const oswaldLocal = readFontFile('public/fonts/Oswald-Bold.ttf');
+  // Try filesystem first (fastest, no network).
+  // Paths are relative to the Next.js app root (poster-app/).
+  const oswaldLocal        = readFontFile('public/fonts/Oswald-Bold.ttf');
   const poppinsRegularLocal = readFontFile('public/fonts/Poppins-Regular.ttf');
   const poppinsSemiBoldLocal = readFontFile('public/fonts/Poppins-SemiBold.ttf');
 
   if (oswaldLocal && poppinsRegularLocal && poppinsSemiBoldLocal) {
+    console.log('[fontLoader] Loaded fonts from filesystem');
     fontCache = {
       oswaldBold: oswaldLocal,
       poppinsRegular: poppinsRegularLocal,
@@ -83,8 +110,8 @@ export async function loadFonts(): Promise<FontCache> {
     return fontCache;
   }
 
-  // Fallback: fetch real TTF zips from google-webfonts-helper (gwfh)
-  // gwfh serves genuine latin-subset TTF binaries — unlike gstatic which serves WOFF2
+  // Fallback: fetch real TTF zips from google-webfonts-helper (gwfh).
+  // gwfh serves genuine latin-subset TTF binaries packaged in a zip.
   console.log('[fontLoader] Local font files not found — fetching from gwfh CDN...');
   const [oswaldBold, poppinsRegular, poppinsSemiBold] = await Promise.all([
     fetchFontFromGwfh(
