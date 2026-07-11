@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@source "../components/**/*.{ts,tsx}";
+@source "../app/**/*.{ts,tsx}";
+
+:root {
+  --font-oswald: 'Oswald', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+/* Dark scrollbar for the form panel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Smooth transitions on focus */
+input, textarea, select, button {
+  transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Prevent layout shift from scrollbar appearing */
+html {
+  scrollbar-gutter: stable;
+  height: 100%;
+}
+
+/* Global text rendering */
+body {
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
