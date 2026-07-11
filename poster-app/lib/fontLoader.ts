@@ -23,10 +23,33 @@ interface FontCache {
 // Module-level cache — persists across requests in the same Node.js process
 let fontCache: FontCache | null = null;
 
-async function fetchFontFromURL(url: string): Promise<ArrayBuffer> {
+/**
+ * Fetch a font zip from gwfh (google-webfonts-helper) and extract the first .ttf entry.
+ * gwfh returns a zip archive — we extract the raw TTF bytes from it.
+ */
+async function fetchFontFromGwfh(url: string, fontName: string): Promise<ArrayBuffer> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch font: ${url}`);
-  return res.arrayBuffer();
+  if (!res.ok) throw new Error(`Failed to fetch font zip for ${fontName}: HTTP ${res.status}`);
+  const zipBuf = await res.arrayBuffer();
+
+  // Parse the zip to find the .ttf entry (minimal ZIP parser — local file header only)
+  const view = new DataView(zipBuf);
+  let offset = 0;
+  while (offset < view.byteLength - 4) {
+    if (view.getUint32(offset, true) !== 0x04034b50) break; // PK local file header
+    const filenameLen = view.getUint16(offset + 26, true);
+    const extraLen = view.getUint16(offset + 28, true);
+    const compressedSize = view.getUint32(offset + 18, true);
+    const compressionMethod = view.getUint16(offset + 8, true);
+    const filename = new TextDecoder().decode(new Uint8Array(zipBuf, offset + 30, filenameLen));
+    const dataStart = offset + 30 + filenameLen + extraLen;
+    if (filename.endsWith('.ttf') && compressionMethod === 0) {
+      // Stored (no compression) — slice directly
+      return zipBuf.slice(dataStart, dataStart + compressedSize);
+    }
+    offset = dataStart + compressedSize;
+  }
+  throw new Error(`No uncompressed .ttf entry found in font zip for ${fontName}`);
 }
 
 function readFontFile(relativePath: string): ArrayBuffer | null {
@@ -60,17 +83,21 @@ export async function loadFonts(): Promise<FontCache> {
     return fontCache;
   }
 
-  // Fallback: fetch from Google Fonts GitHub mirror (reliable stable URLs)
-  console.log('[fontLoader] Local font files not found — fetching from Google Fonts GitHub...');
+  // Fallback: fetch real TTF zips from google-webfonts-helper (gwfh)
+  // gwfh serves genuine latin-subset TTF binaries — unlike gstatic which serves WOFF2
+  console.log('[fontLoader] Local font files not found — fetching from gwfh CDN...');
   const [oswaldBold, poppinsRegular, poppinsSemiBold] = await Promise.all([
-    fetchFontFromURL(
-      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/oswald/static/Oswald-Bold.ttf'
+    fetchFontFromGwfh(
+      'https://gwfh.mranftl.com/api/fonts/oswald?download=zip&subsets=latin&variants=700&formats=ttf',
+      'Oswald-Bold'
     ),
-    fetchFontFromURL(
-      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Regular.ttf'
+    fetchFontFromGwfh(
+      'https://gwfh.mranftl.com/api/fonts/poppins?download=zip&subsets=latin&variants=regular&formats=ttf',
+      'Poppins-Regular'
     ),
-    fetchFontFromURL(
-      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-SemiBold.ttf'
+    fetchFontFromGwfh(
+      'https://gwfh.mranftl.com/api/fonts/poppins?download=zip&subsets=latin&variants=600&formats=ttf',
+      'Poppins-SemiBold'
     ),
   ]);
 
