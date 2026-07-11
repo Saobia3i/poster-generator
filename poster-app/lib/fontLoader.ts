@@ -64,13 +64,13 @@ export async function loadFonts(): Promise<FontCache> {
   console.log('[fontLoader] Local font files not found — fetching from Google Fonts GitHub...');
   const [oswaldBold, poppinsRegular, poppinsSemiBold] = await Promise.all([
     fetchFontFromURL(
-      'https://github.com/google/fonts/raw/main/ofl/oswald/static/Oswald-Bold.ttf'
+      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/oswald/static/Oswald-Bold.ttf'
     ),
     fetchFontFromURL(
-      'https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Regular.ttf'
+      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-Regular.ttf'
     ),
     fetchFontFromURL(
-      'https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-SemiBold.ttf'
+      'https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/poppins/Poppins-SemiBold.ttf'
     ),
   ]);
 

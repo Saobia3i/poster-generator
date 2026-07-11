@@ -1435,5 +1435,73 @@
       "logoLayout": "split",
       "quickNotes": ""
     }
+  },
+  {
+    "timestamp": "2026-07-11T13:08:10.733Z",
+    "sizePreset": "poster_landscape",
+    "variant": "portrait",
+    "widthPx": 1500,
+    "heightPx": 2400,
+    "title": "ff",
+    "subtitle": "ff",
+    "contentTier": "minimal",
+    "formSnapshot": {
+      "sizePreset": "poster_landscape",
+      "title": "ff",
+      "subtitle": "ff",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [
+        "CYBERSECURITY",
+        "AI & MACHINE LEARNING"
+      ],
+      "hasTable": false,
+      "tableHeaders": [
+        "Topic",
+        "Time",
+        "Speaker"
+      ],
+      "tableRows": [
+        [
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          ""
+        ]
+      ],
+      "hasIconBadges": false,
+      "iconBadges": [
+        {
+          "icon": "shield",
+          "label": "SECURITY"
+        },
+        {
+          "icon": "brain",
+          "label": "AI"
+        }
+      ],
+      "hasQrCode": false,
+      "qrUrl": "",
+      "hasWatermark": true,
+      "watermarkLeft": "SECURE",
+      "watermarkRight": "LEAD",
+      "hasExtraBadge": false,
+      "extraBadgeText": "REGISTRATION OPEN",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
   }
 ]
