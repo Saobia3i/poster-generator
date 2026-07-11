@@ -13,7 +13,7 @@ import PosterPreview from '@/components/PosterPreview';
 
 import { PRESET_TO_VARIANT, VARIANT_FEATURES } from '@/lib/theme';
 import type { PosterFormData } from '@/lib/posterSchema';
-import { Download, AlertTriangle, History, ChevronDown, ChevronUp, Menu, X, RotateCcw, Trash2, GripVertical } from 'lucide-react';
+import { Download, AlertTriangle, History, ChevronDown, ChevronUp, Menu, X, RotateCcw, Trash2, GripVertical, Link } from 'lucide-react';
 
 const HISTORY_STORAGE_KEY = 'austcaic-poster-history-v1';
 const MAX_HISTORY_ITEMS = 30;
@@ -162,6 +162,32 @@ export default function GeneratePage() {
   const [historyItems, setHistoryItems] = useState<PosterHistoryItem[]>([]);
   const [historySource, setHistorySource] = useState<'server' | 'local'>('server');
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+
+  const getShareableLink = useCallback(() => {
+    try {
+      // Omit image data to avoid huge URL strings
+      const { imageDataUrl, ...dataToShare } = formData;
+      const json = JSON.stringify(dataToShare);
+      const base64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      }));
+      const url = new URL(window.location.href);
+      url.hash = `share=${base64}`;
+      return url.toString();
+    } catch (err) {
+      console.error('Failed to generate shareable link:', err);
+      return window.location.href;
+    }
+  }, [formData]);
+
+  const handleShareLink = useCallback(() => {
+    const link = getShareableLink();
+    navigator.clipboard.writeText(link).then(() => {
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 2000);
+    });
+  }, [getShareableLink]);
 
   const variant = PRESET_TO_VARIANT[formData.sizePreset];
   const features = VARIANT_FEATURES[variant];
@@ -246,6 +272,29 @@ export default function GeneratePage() {
   useEffect(() => {
     loadSharedHistory();
   }, [loadSharedHistory]);
+
+  useEffect(() => {
+    // Load from URL hash if present
+    try {
+      const hash = window.location.hash;
+      if (hash.startsWith('#share=')) {
+        const base64 = hash.substring(7);
+        const decodedJson = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const parsedData = JSON.parse(decodedJson);
+        // Merge with default state to ensure all fields exist
+        setFormData((prev) => ({ ...prev, ...parsedData }));
+        // Clear hash so it doesn't stay in the address bar if they edit it
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    } catch (err) {
+      console.warn('Failed to parse shareable link from hash:', err);
+    }
+  }, []);
 
   const persistHistory = useCallback((items: PosterHistoryItem[]) => {
     setHistoryItems(items);
@@ -719,6 +768,14 @@ export default function GeneratePage() {
                 Generate & Download PNG
               </>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={handleShareLink}
+            className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-xs border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-200"
+          >
+            <Link size={13} />
+            {shareLinkCopied ? 'Link Copied to Clipboard!' : 'Share Edit Link'}
           </button>
           <p className="text-[10px] text-white/20 text-center mt-2">
             Exports at full {formData.sizePreset === 'custom' ? `${Math.round((formData.customWidthIn ?? 8) * 300)}×${Math.round((formData.customHeightIn ?? 5) * 300)}` : ({ banner_small: '1500×600', facebook_post: '1200×630', instagram_square: '1080×1080', instagram_story: '1080×1920', poster_landscape: '1500×2400', poster_portrait_a4: '2481×3508' }[formData.sizePreset])}px · 300 DPI
