@@ -36,27 +36,76 @@ import { BACKGROUND_TEMPLATES, SIZE_PRESETS, PRESET_TO_VARIANT } from '@/lib/the
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/**
- * Resolve a project-relative file path that works in all environments.
- * outputFileTracingIncludes in next.config.ts ensures Vercel bundles these
- * files with the Lambda function. The traced files end up relative to cwd.
- */
+let cachedAssetsDir: string | null = null;
+
+function findFileRecursively(dir: string, fileName: string, depth = 0): string | null {
+  if (depth > 6) return null; // prevent too deep recursion
+  try {
+    const items = fs.readdirSync(dir);
+    for (const item of items) {
+      if (item === 'node_modules' || item === '.git' || item === '.next') continue;
+      const fullPath = path.join(dir, item);
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        const found = findFileRecursively(fullPath, fileName, depth + 1);
+        if (found) return found;
+      } else if (item === fileName) {
+        return fullPath;
+      }
+    }
+  } catch {}
+  return null;
+}
+
 function resolveProjectFile(relativePath: string): string | null {
   const cwd = process.cwd();
+  
+  // 1. Try standard candidate paths first
   const candidates = [
-    path.join(cwd, relativePath),                // local dev & Vercel (rootDirectory=poster-app)
-    path.join(cwd, 'poster-app', relativePath),  // Vercel monorepo (rootDirectory not set)
-    path.join('/var/task', relativePath),         // Vercel Lambda absolute path
-    path.join('/var/task/poster-app', relativePath), // Vercel Lambda monorepo
+    path.join(cwd, relativePath),
+    path.join(cwd, 'poster-app', relativePath),
+    path.join('/var/task', relativePath),
+    path.join('/var/task/poster-app', relativePath),
   ];
+
+  if (cachedAssetsDir) {
+    const cachedPath = path.join(cachedAssetsDir, relativePath);
+    if (fs.existsSync(cachedPath)) return cachedPath;
+  }
+
   for (const candidate of candidates) {
     try {
       if (fs.existsSync(candidate)) {
-        console.log(`[assets] resolved: ${candidate}`);
         return candidate;
       }
-    } catch { /* ignore */ }
+    } catch {}
   }
+
+  // 2. Fallback: Search the filesystem dynamically to locate where Next.js placed the traced public folder
+  const targetFile = relativePath.split('/').pop() || '';
+  if (!targetFile) return null;
+
+  try {
+    const searchDirs = [cwd, '/var/task'];
+    for (const searchDir of searchDirs) {
+      if (!fs.existsSync(searchDir)) continue;
+      const foundPath = findFileRecursively(searchDir, targetFile);
+      if (foundPath) {
+        const suffix = relativePath.replace(/\\/g, '/');
+        const absolute = foundPath.replace(/\\/g, '/');
+        if (absolute.endsWith(suffix)) {
+          const baseDir = absolute.slice(0, -suffix.length);
+          cachedAssetsDir = path.normalize(baseDir);
+          console.log(`[assets] Dynamically located assets base directory: ${cachedAssetsDir}`);
+          return path.join(cachedAssetsDir, relativePath);
+        }
+        return foundPath;
+      }
+    }
+  } catch (err) {
+    console.error('[assets] Error searching for file recursively:', err);
+  }
+
   console.warn(`[assets] NOT FOUND: ${relativePath} | cwd=${cwd}`);
   return null;
 }
