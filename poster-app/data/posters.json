@@ -1503,5 +1503,333 @@
       "logoLayout": "split",
       "quickNotes": ""
     }
+  },
+  {
+    "timestamp": "2026-07-11T14:31:51.259Z",
+    "sizePreset": "poster_landscape",
+    "variant": "portrait",
+    "widthPx": 1500,
+    "heightPx": 2400,
+    "title": "Hands on Weekends",
+    "subtitle": "CYBERSECURITY & RECONNAISSANCE WORKSHOP",
+    "contentTier": "medium",
+    "formSnapshot": {
+      "sizePreset": "poster_landscape",
+      "title": "Hands on Weekends",
+      "subtitle": "CYBERSECURITY & RECONNAISSANCE WORKSHOP",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [
+        "ACTIVE & PASSIVE RECONNAISSANCE",
+        "PORT SCANNING & SERVICE DETECTING",
+        "OSINT & SOCIAL ENGINEERING TECHNIQUES"
+      ],
+      "hasTable": true,
+      "tableHeaders": [
+        "Session",
+        "Time",
+        "Instructor"
+      ],
+      "tableRows": [
+        [
+          "Recon Basics",
+          "10:00 AM",
+          "Abrar Bhai"
+        ],
+        [
+          "Port Scanning",
+          "11:30 AM",
+          "Red Team Lead"
+        ],
+        [
+          "OSINT Lab",
+          "02:00 PM",
+          "Special Guest"
+        ]
+      ],
+      "hasIconBadges": true,
+      "iconBadges": [
+        {
+          "icon": "shield-check",
+          "label": "Certified"
+        },
+        {
+          "icon": "terminal",
+          "label": "Hands-on"
+        },
+        {
+          "icon": "users",
+          "label": "Interactive"
+        }
+      ],
+      "hasQrCode": false,
+      "qrUrl": "",
+      "hasWatermark": true,
+      "watermarkLeft": "SECURE",
+      "watermarkRight": "LEAD",
+      "hasExtraBadge": true,
+      "extraBadgeText": "REGISTRATION OPEN",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
+  },
+  {
+    "timestamp": "2026-07-11T14:31:55.648Z",
+    "sizePreset": "poster_portrait_a4",
+    "variant": "portrait",
+    "widthPx": 2481,
+    "heightPx": 3508,
+    "title": "Cybersecurity Seminar",
+    "subtitle": "Building a secure digital future",
+    "contentTier": "minimal",
+    "formSnapshot": {
+      "sizePreset": "poster_portrait_a4",
+      "title": "Cybersecurity Seminar",
+      "subtitle": "Building a secure digital future",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [
+        "Explore industry best practices",
+        "Interactive Q&A session",
+        "Free certification badge"
+      ],
+      "hasTable": false,
+      "tableHeaders": [],
+      "tableRows": [],
+      "hasIconBadges": false,
+      "iconBadges": [],
+      "hasQrCode": true,
+      "qrUrl": "https://austcaic.org/seminar-register",
+      "hasWatermark": false,
+      "watermarkLeft": "",
+      "watermarkRight": "",
+      "hasExtraBadge": true,
+      "extraBadgeText": "FREE ENTRY",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
+  },
+  {
+    "timestamp": "2026-07-11T14:31:56.459Z",
+    "sizePreset": "banner_small",
+    "variant": "banner",
+    "widthPx": 1500,
+    "heightPx": 600,
+    "title": "AUSTCAIC Cybersecurity",
+    "subtitle": "Securing the Campus, Leading the Tech Community",
+    "contentTier": "minimal",
+    "formSnapshot": {
+      "sizePreset": "banner_small",
+      "title": "AUSTCAIC Cybersecurity",
+      "subtitle": "Securing the Campus, Leading the Tech Community",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [],
+      "hasTable": false,
+      "tableHeaders": [],
+      "tableRows": [],
+      "hasIconBadges": false,
+      "iconBadges": [],
+      "hasQrCode": false,
+      "qrUrl": "",
+      "hasWatermark": false,
+      "watermarkLeft": "",
+      "watermarkRight": "",
+      "hasExtraBadge": false,
+      "extraBadgeText": "REGISTRATION OPEN",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
+  },
+  {
+    "timestamp": "2026-07-11T14:56:52.225Z",
+    "sizePreset": "poster_landscape",
+    "variant": "portrait",
+    "widthPx": 1500,
+    "heightPx": 2400,
+    "title": "Hands on Weekends",
+    "subtitle": "CYBERSECURITY & RECONNAISSANCE WORKSHOP",
+    "contentTier": "medium",
+    "formSnapshot": {
+      "sizePreset": "poster_landscape",
+      "title": "Hands on Weekends",
+      "subtitle": "CYBERSECURITY & RECONNAISSANCE WORKSHOP",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [
+        "ACTIVE & PASSIVE RECONNAISSANCE",
+        "PORT SCANNING & SERVICE DETECTING",
+        "OSINT & SOCIAL ENGINEERING TECHNIQUES"
+      ],
+      "hasTable": true,
+      "tableHeaders": [
+        "Session",
+        "Time",
+        "Instructor"
+      ],
+      "tableRows": [
+        [
+          "Recon Basics",
+          "10:00 AM",
+          "Abrar Bhai"
+        ],
+        [
+          "Port Scanning",
+          "11:30 AM",
+          "Red Team Lead"
+        ],
+        [
+          "OSINT Lab",
+          "02:00 PM",
+          "Special Guest"
+        ]
+      ],
+      "hasIconBadges": true,
+      "iconBadges": [
+        {
+          "icon": "shield-check",
+          "label": "Certified"
+        },
+        {
+          "icon": "terminal",
+          "label": "Hands-on"
+        },
+        {
+          "icon": "users",
+          "label": "Interactive"
+        }
+      ],
+      "hasQrCode": false,
+      "qrUrl": "",
+      "hasWatermark": true,
+      "watermarkLeft": "SECURE",
+      "watermarkRight": "LEAD",
+      "hasExtraBadge": true,
+      "extraBadgeText": "REGISTRATION OPEN",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
+  },
+  {
+    "timestamp": "2026-07-11T14:56:56.589Z",
+    "sizePreset": "poster_portrait_a4",
+    "variant": "portrait",
+    "widthPx": 2481,
+    "heightPx": 3508,
+    "title": "Cybersecurity Seminar",
+    "subtitle": "Building a secure digital future",
+    "contentTier": "minimal",
+    "formSnapshot": {
+      "sizePreset": "poster_portrait_a4",
+      "title": "Cybersecurity Seminar",
+      "subtitle": "Building a secure digital future",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [
+        "Explore industry best practices",
+        "Interactive Q&A session",
+        "Free certification badge"
+      ],
+      "hasTable": false,
+      "tableHeaders": [],
+      "tableRows": [],
+      "hasIconBadges": false,
+      "iconBadges": [],
+      "hasQrCode": true,
+      "qrUrl": "https://austcaic.org/seminar-register",
+      "hasWatermark": false,
+      "watermarkLeft": "",
+      "watermarkRight": "",
+      "hasExtraBadge": true,
+      "extraBadgeText": "FREE ENTRY",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
+  },
+  {
+    "timestamp": "2026-07-11T14:56:57.416Z",
+    "sizePreset": "banner_small",
+    "variant": "banner",
+    "widthPx": 1500,
+    "heightPx": 600,
+    "title": "AUSTCAIC Cybersecurity",
+    "subtitle": "Securing the Campus, Leading the Tech Community",
+    "contentTier": "minimal",
+    "formSnapshot": {
+      "sizePreset": "banner_small",
+      "title": "AUSTCAIC Cybersecurity",
+      "subtitle": "Securing the Campus, Leading the Tech Community",
+      "clubLogoPosition": "top-center",
+      "varsityLogoPosition": "bottom-center",
+      "bulletList": [],
+      "hasTable": false,
+      "tableHeaders": [],
+      "tableRows": [],
+      "hasIconBadges": false,
+      "iconBadges": [],
+      "hasQrCode": false,
+      "qrUrl": "",
+      "hasWatermark": false,
+      "watermarkLeft": "",
+      "watermarkRight": "",
+      "hasExtraBadge": false,
+      "extraBadgeText": "REGISTRATION OPEN",
+      "sectionOrder": [
+        "content",
+        "bullets",
+        "table",
+        "badges",
+        "qrcode",
+        "image"
+      ],
+      "bulletColumns": 1,
+      "logoLayout": "split",
+      "quickNotes": ""
+    }
   }
 ]
