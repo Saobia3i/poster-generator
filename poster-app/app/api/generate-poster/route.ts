@@ -237,6 +237,9 @@ export async function POST(request: NextRequest) {
     sectionOrder: data.sectionOrder,
     bulletColumns: data.bulletColumns,
     logoLayout: data.logoLayout,
+    imageFrame: data.imageFrame,
+    imagePosition: data.imagePosition,
+    imageSize: data.imageSize,
   };
 
   // Select layout variant

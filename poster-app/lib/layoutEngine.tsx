@@ -66,6 +66,10 @@ export interface LayoutData {
   sectionOrder: ('content' | 'bullets' | 'table' | 'badges' | 'qrcode' | 'image')[];
   bulletColumns: number;
   logoLayout: 'split' | 'side_by_side';
+  // Image frame
+  imageFrame?: 'none' | 'circle' | 'square' | 'rectangle';
+  imagePosition?: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  imageSize?: 'small' | 'medium' | 'large';
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -126,6 +130,76 @@ function SatoriIcon({
         <path key={i} d={d} />
       ))}
     </svg>
+  );
+}
+
+/**
+ * Renders the uploaded image with the chosen frame shape and position.
+ * Uses absolute positioning within the poster wrapper.
+ */
+function FramedImage({
+  src,
+  frame,
+  position,
+  size,
+  widthPx,
+  heightPx,
+  mx,
+  my,
+}: {
+  src: string;
+  frame: 'none' | 'circle' | 'square' | 'rectangle';
+  position: string;
+  size: 'small' | 'medium' | 'large';
+  widthPx: number;
+  heightPx: number;
+  mx: number;
+  my: number;
+}) {
+  // Image dimensions based on size tier
+  const sizeFactor = size === 'small' ? 0.18 : size === 'large' ? 0.32 : 0.25;
+  const imgW = Math.round(widthPx * sizeFactor);
+  const imgH = frame === 'rectangle' ? Math.round(imgW * 0.65) : imgW;
+  const borderRadius = frame === 'circle' ? '50%' : frame === 'square' ? '0px' : spacing(2, widthPx);
+  const borderWidth = spacing(0.5, widthPx);
+
+  // Position mapping to absolute coords
+  const posMap: Record<string, { top?: number; bottom?: number; left?: number; right?: number }> = {
+    'top-left':      { top: my, left: mx },
+    'top-center':    { top: my, left: Math.round((widthPx - imgW) / 2) },
+    'top-right':     { top: my, right: mx },
+    'center-left':   { top: Math.round((heightPx - imgH) / 2), left: mx },
+    'center':        { top: Math.round((heightPx - imgH) / 2), left: Math.round((widthPx - imgW) / 2) },
+    'center-right':  { top: Math.round((heightPx - imgH) / 2), right: mx },
+    'bottom-left':   { bottom: my, left: mx },
+    'bottom-center': { bottom: my, left: Math.round((widthPx - imgW) / 2) },
+    'bottom-right':  { bottom: my, right: mx },
+  };
+
+  const coords = posMap[position] ?? posMap['center-right'];
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        width: imgW,
+        height: imgH,
+        ...coords,
+        borderRadius,
+        border: `${borderWidth}px solid rgba(82,74,152,0.6)`,
+        overflow: 'hidden',
+        boxShadow: `0 ${spacing(2, widthPx)}px ${spacing(8, widthPx)}px rgba(0,0,0,0.35)`,
+      }}
+    >
+      <img
+        src={src}
+        style={{
+          width: imgW,
+          height: imgH,
+          objectFit: 'cover',
+        }}
+      />
+    </div>
   );
 }
 
@@ -630,6 +704,20 @@ export function renderLandscapeInfoPoster(
     >
       <BackgroundPattern patternDataUrl={assets.patternDataUrl} widthPx={W} />
 
+      {/* Framed uploaded image — absolutely positioned overlay */}
+      {assets.uploadedImageDataUrl && (
+        <FramedImage
+          src={assets.uploadedImageDataUrl}
+          frame={data.imageFrame ?? 'none'}
+          position={data.imagePosition ?? 'center-right'}
+          size={data.imageSize ?? 'medium'}
+          widthPx={W}
+          heightPx={H}
+          mx={mx}
+          my={my}
+        />
+      )}
+
       <div
         style={{
           position: 'relative',
@@ -898,6 +986,20 @@ export function renderPortraitQrPoster(
       }}
     >
       <BackgroundPattern patternDataUrl={assets.patternDataUrl} widthPx={W} />
+
+      {/* Framed uploaded image — absolutely positioned overlay */}
+      {assets.uploadedImageDataUrl && (
+        <FramedImage
+          src={assets.uploadedImageDataUrl}
+          frame={data.imageFrame ?? 'none'}
+          position={data.imagePosition ?? 'center-right'}
+          size={data.imageSize ?? 'medium'}
+          widthPx={W}
+          heightPx={H}
+          mx={mx}
+          my={my}
+        />
+      )}
 
       <div
         style={{

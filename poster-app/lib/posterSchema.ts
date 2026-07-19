@@ -68,8 +68,15 @@ export const PosterFormSchema = z.object({
   hasExtraBadge: z.boolean().default(false),
   extraBadgeText: z.string().optional().default('REGISTRATION OPEN'),
 
-  // ── Image Upload ──────────────────────────
+  // ── Image Upload ──────────────────────────────────────────────
   imageDataUrl: z.string().optional(),
+  imageFrame: z.enum(['none', 'circle', 'square', 'rectangle']).default('none'),
+  imagePosition: z.enum([
+    'top-left', 'top-center', 'top-right',
+    'center-left', 'center', 'center-right',
+    'bottom-left', 'bottom-center', 'bottom-right',
+  ]).default('center-right'),
+  imageSize: z.enum(['small', 'medium', 'large']).default('medium'),
 
   // ── Layout Control (Drag-and-Drop) ────────
   sectionOrder: z.array(z.enum(['content', 'bullets', 'table', 'badges', 'qrcode', 'image']))

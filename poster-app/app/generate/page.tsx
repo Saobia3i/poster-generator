@@ -48,6 +48,9 @@ const defaultFormData: PosterFormData = {
   hasExtraBadge: false,
   extraBadgeText: 'REGISTRATION OPEN',
   imageDataUrl: undefined,
+  imageFrame: 'none' as const,
+  imagePosition: 'center-right' as const,
+  imageSize: 'medium' as const,
   quickNotes: '',
   sectionOrder: ['content', 'bullets', 'table', 'badges', 'qrcode', 'image'],
   bulletColumns: 1,
@@ -664,7 +667,13 @@ export default function GeneratePage() {
               sectionContent = (
                 <ImageUpload
                   imageDataUrl={formData.imageDataUrl}
+                  imageFrame={formData.imageFrame}
+                  imagePosition={formData.imagePosition}
+                  imageSize={formData.imageSize}
                   onChange={(v) => update('imageDataUrl', v)}
+                  onFrameChange={(v) => update('imageFrame', v)}
+                  onPositionChange={(v) => update('imagePosition', v)}
+                  onSizeChange={(v) => update('imageSize', v)}
                 />
               );
             }

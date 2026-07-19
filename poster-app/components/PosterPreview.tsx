@@ -124,6 +124,20 @@ export default function PosterPreview({ formData, onDensityWarning }: PosterPrev
           }}
         />
 
+        {/* Framed image overlay */}
+        {formData.imageDataUrl && (
+          <PreviewFramedImage
+            src={formData.imageDataUrl}
+            frame={formData.imageFrame ?? 'none'}
+            position={formData.imagePosition ?? 'center-right'}
+            size={formData.imageSize ?? 'medium'}
+            previewW={previewW}
+            previewH={previewH}
+            mx={mx}
+            my={my}
+          />
+        )}
+
         {/* Content */}
         <div
           style={{
@@ -748,6 +762,67 @@ function PreviewTable({ headers, rows, sp }: { headers: string[]; rows: string[]
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+function PreviewFramedImage({
+  src,
+  frame,
+  position,
+  size,
+  previewW,
+  previewH,
+  mx,
+  my,
+}: {
+  src: string;
+  frame: 'none' | 'circle' | 'square' | 'rectangle';
+  position: string;
+  size: 'small' | 'medium' | 'large';
+  previewW: number;
+  previewH: number;
+  mx: number;
+  my: number;
+}) {
+  const sizeFactor = size === 'small' ? 0.18 : size === 'large' ? 0.32 : 0.25;
+  const imgW = Math.round(previewW * sizeFactor);
+  const imgH = frame === 'rectangle' ? Math.round(imgW * 0.65) : imgW;
+  const borderRadius = frame === 'circle' ? '50%' : frame === 'square' ? '0px' : '4px';
+
+  const posMap: Record<string, React.CSSProperties> = {
+    'top-left':      { top: my, left: mx },
+    'top-center':    { top: my, left: (previewW - imgW) / 2 },
+    'top-right':     { top: my, right: mx },
+    'center-left':   { top: (previewH - imgH) / 2, left: mx },
+    'center':        { top: (previewH - imgH) / 2, left: (previewW - imgW) / 2 },
+    'center-right':  { top: (previewH - imgH) / 2, right: mx },
+    'bottom-left':   { bottom: my, left: mx },
+    'bottom-center': { bottom: my, left: (previewW - imgW) / 2 },
+    'bottom-right':  { bottom: my, right: mx },
+  };
+
+  const coords = posMap[position] ?? posMap['center-right'];
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        width: imgW,
+        height: imgH,
+        ...coords,
+        borderRadius,
+        border: '1.5px solid rgba(130,110,220,0.55)',
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+        zIndex: 10,
+      }}
+    >
+      <img
+        src={src}
+        alt="Poster image"
+        style={{ width: imgW, height: imgH, objectFit: 'cover', display: 'block' }}
+      />
     </div>
   );
 }
