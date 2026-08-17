@@ -54,33 +54,33 @@ export default function TableBuilder({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Columns size={13} className="text-purple-400" />
-          <span className="text-xs font-semibold text-white/60 uppercase tracking-widest">
+          <Columns size={15} className="text-purple-600 dark:text-purple-400" />
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
             Table Builder
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <button
             type="button"
             id="btn-add-col"
             onClick={addColumn}
             disabled={colCount >= 5}
-            className="text-[10px] px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-white/50 hover:text-white hover:border-purple-500/50 disabled:opacity-30 transition"
+            className="text-xs font-semibold px-3 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-300 dark:border-purple-500/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 disabled:opacity-30 transition cursor-pointer"
           >
             + Column
           </button>
-          <span className="text-[10px] text-white/25 self-center">{rows.length} row{rows.length !== 1 ? 's' : ''}</span>
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 self-center">{rows.length} row{rows.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
       {/* Table editor */}
-      <div className="overflow-x-auto rounded-xl border border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-900">
         <table className="w-full border-collapse text-xs">
           {/* Header row */}
           <thead>
-            <tr className="bg-purple-900/30">
+            <tr className="bg-purple-100 dark:bg-purple-900/40 border-b border-slate-300 dark:border-slate-700/80">
               {headers.map((header, ci) => (
-                <th key={ci} className="p-0 border-r border-white/10 last:border-r-0">
+                <th key={ci} className="p-0 border-r border-slate-300 dark:border-slate-700/80 last:border-r-0">
                   <div className="flex items-center">
                     <input
                       id={`table-header-${ci}`}
@@ -88,15 +88,15 @@ export default function TableBuilder({
                       value={header}
                       onChange={(e) => updateHeader(ci, e.target.value)}
                       placeholder={`Column ${ci + 1}`}
-                      className="flex-1 bg-transparent px-3 py-2 text-purple-200 font-semibold placeholder-purple-400/30 focus:outline-none text-xs"
+                      className="flex-1 bg-transparent px-3 py-2 text-purple-900 dark:text-purple-200 font-bold placeholder-purple-400 dark:placeholder-purple-400/50 focus:outline-none text-xs"
                     />
                     {colCount > 1 && (
                       <button
                         type="button"
                         onClick={() => removeColumn(ci)}
-                        className="px-1.5 text-white/20 hover:text-red-400 transition"
+                        className="px-1.5 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition"
                       >
-                        <Trash2 size={11} />
+                        <Trash2 size={12} />
                       </button>
                     )}
                   </div>
@@ -108,28 +108,29 @@ export default function TableBuilder({
           {/* Data rows */}
           <tbody>
             {rows.map((row, ri) => (
-              <tr key={ri} className="border-t border-white/10 group">
+              <tr key={ri} className="border-t border-slate-200 dark:border-slate-800 group hover:bg-purple-50/50 dark:hover:bg-slate-800">
                 {row.map((cell, ci) => (
-                  <td key={ci} className="border-r border-white/10 last:border-r-0 p-0">
+                  <td key={ci} className="border-r border-slate-200 dark:border-slate-800 last:border-r-0 p-0">
                     <input
                       id={`table-cell-${ri}-${ci}`}
                       type="text"
                       value={cell}
                       onChange={(e) => updateCell(ri, ci, e.target.value)}
                       placeholder="—"
-                      className="w-full bg-transparent px-3 py-2 text-white/70 placeholder-white/15 focus:outline-none text-xs focus:bg-purple-500/5"
+                      className="w-full bg-transparent px-3 py-2 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none text-xs focus:bg-purple-500/5"
                     />
                   </td>
                 ))}
                 {/* Row remove button */}
-                <td className="w-8 border-l border-white/10 p-0">
+                <td className="w-8 border-l border-slate-200 dark:border-slate-800 p-0">
                   <button
                     type="button"
                     onClick={() => removeRow(ri)}
                     disabled={rows.length <= 1}
-                    className="w-full h-full flex items-center justify-center text-white/0 group-hover:text-white/30 hover:!text-red-400 disabled:opacity-0 transition p-2"
+                    aria-label={`Delete row ${ri + 1}`}
+                    className="w-full h-full flex items-center justify-center text-slate-400 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-0 transition p-2 cursor-pointer"
                   >
-                    <Trash2 size={11} />
+                    <Trash2 size={12} />
                   </button>
                 </td>
               </tr>
@@ -143,14 +144,14 @@ export default function TableBuilder({
         id="btn-add-row"
         onClick={addRow}
         disabled={rows.length >= 10}
-        className="flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-white/15 text-white/40 hover:text-white/70 hover:border-white/30 text-xs transition disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-purple-300 dark:border-purple-500/40 bg-purple-50/50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
       >
-        <Plus size={12} />
+        <Plus size={14} />
         Add row {rows.length >= 10 && '(max 10)'}
       </button>
 
       {rows.length >= 5 && (
-        <p className="text-[10px] text-yellow-400/60">
+        <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
           ⚠ Dense table — logos will auto-scale to 70% to make room.
         </p>
       )}

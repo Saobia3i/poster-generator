@@ -32,6 +32,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { AIContentSchema } from '@/lib/posterSchema';
+import { icons } from 'lucide-react';
 
 export const runtime = 'nodejs';
 
@@ -120,14 +121,22 @@ CRITICAL: Respond ONLY with valid JSON matching this exact schema. No markdown, 
   "tableData": {  // only if suggestedTable is true
     "headers": ["string"],
     "rows": [["string"]]
-  }
+  },
+  "iconBadges": [
+    { "icon": "supported-lucide-icon-name", "label": "SHORT LABEL" }
+  ]
 }`;
+
+  const supportedIconNames = Object.keys(icons).join(', ');
 
   const response = await client.chat.completions.create({
     model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Generate poster copy for this event/content:\n${notes}` },
+      {
+        role: 'user',
+        content: `Generate poster copy for this event/content:\n${notes}\n\nSuggest 2-4 relevant icons when appropriate. Icons must be Lucide names from this allow-list only: ${supportedIconNames}. Never return emoji, unicode symbols, URLs, or any other icon library.`,
+      },
     ],
     temperature: 0.7,
     max_tokens: 1000,
@@ -181,8 +190,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Never trust model-provided identifiers. Only forward icon names that
+    // exist in the poster renderer's Lucide-compatible allow-list.
+    const supportedIcons = new Set<string>(Object.keys(icons));
+    const iconBadges = validated.data.iconBadges
+      ?.filter((badge) => supportedIcons.has(badge.icon))
+      .map((badge) => ({
+        icon: badge.icon,
+        label: badge.label.replace(/[\u{1F000}-\u{1FAFF}\u2600-\u27BF]/gu, '').trim().slice(0, 32),
+      }))
+      .filter((badge) => badge.label.length > 0);
+
     return NextResponse.json({
       ...validated.data,
+      iconBadges,
       _meta: {
         styleExamplesUsed: styleExamples.length,
         model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',

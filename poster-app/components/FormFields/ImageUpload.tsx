@@ -105,22 +105,22 @@ export default function ImageUpload({
     <div className="flex flex-col gap-3">
       {/* Section header */}
       <div className="flex items-center gap-2">
-        <ImageIcon size={13} className="text-white/40" />
-        <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+        <ImageIcon size={15} className="text-purple-600 dark:text-purple-400" />
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
           Optional Image
         </label>
       </div>
 
       {/* Drop zone / preview */}
       {imageDataUrl ? (
-        <div className="relative rounded-xl overflow-hidden border border-white/10 group">
+        <div className="relative rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 group">
           <img
             src={imageDataUrl}
             alt="Uploaded"
             className="w-full h-28 object-cover"
           />
           {/* Frame preview overlay */}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
             <div
               style={{
                 width: 56,
@@ -135,9 +135,10 @@ export default function ImageUpload({
             type="button"
             id="btn-remove-image"
             onClick={() => onChange(undefined)}
-            className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-red-500/80 transition opacity-0 group-hover:opacity-100"
+            aria-label="Remove uploaded image"
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-white hover:bg-red-600 transition opacity-0 group-hover:opacity-100 cursor-pointer"
           >
-            <X size={13} />
+            <X size={14} />
           </button>
         </div>
       ) : (
@@ -145,13 +146,13 @@ export default function ImageUpload({
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => inputRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 p-5 rounded-xl border border-dashed border-white/15 hover:border-purple-500/40 hover:bg-purple-500/5 cursor-pointer transition group"
+          className="flex flex-col items-center justify-center gap-2 p-5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500/70 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 cursor-pointer transition group"
         >
-          <Upload size={18} className="text-white/20 group-hover:text-purple-400 transition" />
-          <p className="text-xs text-white/30 group-hover:text-white/50 transition text-center">
+          <Upload size={20} className="text-purple-600 dark:text-purple-400 group-hover:scale-110 transition" />
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 transition text-center">
             Click or drag an image here
           </p>
-          <p className="text-[10px] text-white/20">PNG, JPG, WebP</p>
+          <p className="text-[10px] text-slate-400">PNG, JPG, WebP supported</p>
         </div>
       )}
 
@@ -171,7 +172,7 @@ export default function ImageUpload({
       {imageDataUrl && (
         <>
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
               Frame Shape
             </label>
             <div className="grid grid-cols-4 gap-1.5">
@@ -180,16 +181,16 @@ export default function ImageUpload({
                   key={value}
                   type="button"
                   onClick={() => onFrameChange(value)}
-                  className={`flex flex-col items-center gap-1.5 py-2 rounded-xl border transition ${
+                  className={`flex flex-col items-center gap-1.5 py-2 rounded-xl border transition cursor-pointer ${
                     imageFrame === value
-                      ? 'border-purple-500/70 bg-purple-500/15 shadow-sm shadow-purple-900/30'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                      ? 'border-purple-600 dark:border-purple-400 bg-purple-100 dark:bg-purple-900/40 shadow-sm'
+                      : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   {preview}
                   <span
-                    className={`text-[9px] font-semibold ${
-                      imageFrame === value ? 'text-purple-300' : 'text-white/40'
+                    className={`text-[10px] font-bold ${
+                      imageFrame === value ? 'text-purple-700 dark:text-purple-300' : 'text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     {label}
@@ -201,7 +202,7 @@ export default function ImageUpload({
 
           {/* ── Image Size ─────────────────────────────────────── */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
               Image Size
             </label>
             <div className="grid grid-cols-3 gap-1.5">
@@ -210,10 +211,10 @@ export default function ImageUpload({
                   key={value}
                   type="button"
                   onClick={() => onSizeChange(value)}
-                  className={`py-1.5 rounded-lg text-xs font-semibold transition ${
+                  className={`py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                     imageSize === value
-                      ? 'bg-purple-600 text-white shadow-md shadow-purple-900/30'
-                      : 'bg-white/5 hover:bg-white/10 text-white/50'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-900/20'
+                      : 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   {label}
@@ -225,15 +226,15 @@ export default function ImageUpload({
           {/* ── Position Grid ──────────────────────────────────── */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
+              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
                 Position on Poster
               </label>
-              <span className="text-[9px] text-white/25">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {POSITION_LABELS[imagePosition]}
               </span>
             </div>
             <div
-              className="grid gap-1 p-1.5 rounded-xl border border-white/10 bg-white/[0.03]"
+              className="grid gap-1 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900"
               style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
             >
               {POSITION_GRID.map((row, ri) =>
@@ -243,15 +244,15 @@ export default function ImageUpload({
                     type="button"
                     title={POSITION_LABELS[pos]}
                     onClick={() => onPositionChange(pos)}
-                    className={`h-8 rounded-lg transition flex items-center justify-center ${
+                    className={`h-8 rounded-lg transition flex items-center justify-center cursor-pointer ${
                       imagePosition === pos
-                        ? 'bg-purple-500/40 border border-purple-500/70 shadow-sm shadow-purple-900/30'
-                        : 'bg-white/5 hover:bg-white/12 border border-transparent hover:border-white/15'
+                        ? 'bg-purple-600 dark:bg-purple-500 border border-purple-500 shadow-sm'
+                        : 'bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full transition ${
-                        imagePosition === pos ? 'bg-purple-300 scale-125' : 'bg-white/25'
+                      className={`w-2.5 h-2.5 rounded-full transition ${
+                        imagePosition === pos ? 'bg-white scale-125' : 'bg-slate-400 dark:bg-slate-500'
                       }`}
                     />
                   </button>

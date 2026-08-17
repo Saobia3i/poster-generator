@@ -13,7 +13,32 @@ import PosterPreview from '@/components/PosterPreview';
 
 import { PRESET_TO_VARIANT, VARIANT_FEATURES } from '@/lib/theme';
 import type { PosterFormData } from '@/lib/posterSchema';
-import { Download, AlertTriangle, History, ChevronDown, ChevronUp, Menu, X, RotateCcw, Trash2, GripVertical, Link } from 'lucide-react';
+import {
+  Download,
+  AlertTriangle,
+  History,
+  ChevronDown,
+  ChevronUp,
+  Menu,
+  X,
+  RotateCcw,
+  Trash2,
+  GripVertical,
+  Link,
+  Sun,
+  Moon,
+  Layout,
+  Image as ImageIcon,
+  Type,
+  List,
+  Table as TableIcon,
+  Shield,
+  QrCode,
+  Layers,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+} from 'lucide-react';
 
 const HISTORY_STORAGE_KEY = 'austcaic-poster-history-v1';
 const MAX_HISTORY_ITEMS = 30;
@@ -35,11 +60,15 @@ const defaultFormData: PosterFormData = {
   clubLogoPosition: 'top-center',
   varsityLogoPosition: 'bottom-center',
   bulletList: ['CYBERSECURITY', 'AI & MACHINE LEARNING'],
+  bulletIcons: [null, null],
   hasTable: false,
   tableHeaders: ['Topic', 'Time', 'Speaker'],
   tableRows: [['', '', ''], ['', '', '']],
   hasIconBadges: false,
-  iconBadges: [{ icon: 'shield', label: 'SECURITY' }, { icon: 'brain', label: 'AI' }],
+  iconBadges: [
+    { icon: 'shield', label: 'SECURITY', x: 82, y: 78, size: 'medium' },
+    { icon: 'brain', label: 'AI', x: 70, y: 78, size: 'medium' },
+  ],
   hasQrCode: false,
   qrUrl: '',
   hasWatermark: true,
@@ -54,33 +83,39 @@ const defaultFormData: PosterFormData = {
   quickNotes: '',
   sectionOrder: ['content', 'bullets', 'table', 'badges', 'qrcode', 'image'],
   bulletColumns: 1,
+  bulletAlignment: 'left',
   logoLayout: 'split',
 };
 
 // ── Section wrapper ────────────────────────────────────────────────
 function FormSection({
   title,
+  icon: Icon,
   children,
   collapsible = false,
   defaultOpen = true,
 }: {
   title: string;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   children: React.ReactNode;
   collapsible?: boolean;
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.03] overflow-hidden">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-all">
       <button
         type="button"
-        className={`w-full flex items-center justify-between px-5 py-4 text-left ${collapsible ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'}`}
+        className={`w-full flex items-center justify-between px-4 py-3.5 text-left ${collapsible ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60' : 'cursor-default'}`}
         onClick={() => collapsible && setOpen(!open)}
       >
-        <span className="text-xs font-bold text-white/60 uppercase tracking-[0.15em]">{title}</span>
-        {collapsible && (open ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />)}
+        <div className="flex items-center gap-2.5 min-w-0">
+          {Icon && <Icon size={16} className="text-purple-600 dark:text-purple-400 flex-shrink-0" />}
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider truncate">{title}</span>
+        </div>
+        {collapsible && (open ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />)}
       </button>
-      {open && <div className="px-5 pb-5 flex flex-col gap-4">{children}</div>}
+      {open && <div className="px-4 pb-4.5 pt-1 flex flex-col gap-4 border-t border-slate-100 dark:border-slate-800/60">{children}</div>}
     </div>
   );
 }
@@ -94,14 +129,14 @@ function Toggle({ id, label, checked, onChange, description }: { id: string; lab
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between text-left cursor-pointer group"
+      className="flex w-full items-center justify-between text-left cursor-pointer group py-1"
     >
       <div>
-        <span className="text-sm text-white/70 group-hover:text-white/90 transition">{label}</span>
-        {description && <p className="text-[10px] text-white/30 mt-0.5">{description}</p>}
+        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition">{label}</span>
+        {description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
       </div>
-      <span className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${checked ? 'bg-purple-600' : 'bg-white/10'}`}>
-        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      <span className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${checked ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-700'}`}>
+        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-200 ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </span>
     </button>
   );
@@ -120,21 +155,21 @@ function LogoPlacementSelect({
 }) {
   return (
     <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-white/40">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">{label}</span>
       <select
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value as PosterFormData['clubLogoPosition'])}
-        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-purple-500 focus:outline-none"
+        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:outline-none"
       >
-        <option value="top-left" className="bg-[#15121f]">Top Left</option>
-        <option value="top-center" className="bg-[#15121f]">Top Center</option>
-        <option value="top-right" className="bg-[#15121f]">Top Right</option>
-        <option value="center" className="bg-[#15121f]">Center</option>
-        <option value="bottom-left" className="bg-[#15121f]">Bottom Left</option>
-        <option value="bottom-center" className="bg-[#15121f]">Bottom Center</option>
-        <option value="bottom-right" className="bg-[#15121f]">Bottom Right</option>
-        <option value="hidden" className="bg-[#15121f]">Hidden</option>
+        <option value="top-left">Top Left</option>
+        <option value="top-center">Top Center</option>
+        <option value="top-right">Top Right</option>
+        <option value="center">Center</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="bottom-center">Bottom Center</option>
+        <option value="bottom-right">Bottom Right</option>
+        <option value="hidden">Hidden</option>
       </select>
     </label>
   );
@@ -156,6 +191,7 @@ function formatSavedAt(value: string) {
 // ─────────────────────────────────────────────────────────────────
 export default function GeneratePage() {
   const [formData, setFormData] = useState<PosterFormData>(defaultFormData);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [densityWarning, setDensityWarning] = useState<string | null>(null);
@@ -166,6 +202,19 @@ export default function GeneratePage() {
   const [historySource, setHistorySource] = useState<'server' | 'local'>('server');
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('poster-theme') as 'dark' | 'light';
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('poster-theme', nextTheme);
+  };
 
   const getShareableLink = useCallback(() => {
     try {
@@ -404,6 +453,15 @@ export default function GeneratePage() {
         update('tableHeaders', data.tableData.headers);
         update('tableRows', data.tableData.rows);
       }
+      if (data.iconBadges?.length) {
+        update('hasIconBadges', true);
+        update('iconBadges', data.iconBadges.map((badge: { icon: string; label: string }, index: number) => ({
+          ...badge,
+          x: 82 - index * 12,
+          y: 78,
+          size: 'medium' as const,
+        })));
+      }
     } catch (err) {
       console.error('AI assist error:', err);
       setGenerateError(err instanceof Error ? err.message : 'AI assist failed.');
@@ -413,12 +471,12 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="flex h-dvh w-screen overflow-hidden bg-[#0C0B14] text-white">
+    <div className={`${theme} flex h-dvh w-full overflow-hidden bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 transition-colors duration-200`}>
       {sidebarOpen && (
         <button
           type="button"
           aria-label="Close form sidebar"
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -427,51 +485,68 @@ export default function GeneratePage() {
           LEFT PANEL — Form
           ═══════════════════════════════════════ */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 w-[min(460px,92vw)] flex-shrink-0 flex flex-col h-dvh overflow-y-auto overscroll-contain touch-pan-y bg-[#0C0B14] shadow-2xl shadow-black/40 transition-transform duration-200 lg:static lg:z-auto lg:w-[460px] lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-40 w-[min(460px,92vw)] flex-shrink-0 flex flex-col h-dvh overflow-y-auto overscroll-contain touch-pan-y bg-slate-50 dark:bg-[#0e1320] border-r border-slate-200 dark:border-slate-800/80 shadow-2xl lg:static lg:z-auto lg:w-[460px] lg:translate-x-0 lg:shadow-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } transition-transform duration-200`}
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-white/8 flex-shrink-0">
+        <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 sm:px-6 sm:py-4 bg-white dark:bg-slate-900/80">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">A</div>
-            <div className="min-w-0">
-              <h1 className="text-base font-bold text-white truncate">Poster Generator</h1>
-              <p className="text-[11px] text-white/35">AUSTCAIC · Graphics Team Tool</p>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-base flex-shrink-0 shadow-md shadow-purple-500/20">
+                A
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-base font-extrabold text-slate-900 dark:text-slate-100 truncate tracking-tight">Poster Generator</h1>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">AUSTCAIC · Graphics Team</p>
+              </div>
             </div>
+
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label="Toggle Light or Dark Theme"
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 transition cursor-pointer text-xs font-bold shadow-sm"
+              >
+                {theme === 'dark' ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-purple-600" />}
+                <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+              </button>
+
+              <button
+                type="button"
+                aria-label="Close form sidebar"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 lg:hidden cursor-pointer"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X size={18} />
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="Close form sidebar"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X size={18} />
-            </button>
           </div>
         </div>
 
         {/* Form fields */}
-        <div className="px-4 py-4 flex flex-col gap-3">
+        <div className="px-4 py-4 flex flex-col gap-3.5">
 
           {/* Density warning banner */}
           {densityWarning && (
-            <div className="flex items-start gap-2.5 bg-yellow-500/10 border border-yellow-500/25 rounded-xl px-4 py-3">
-              <AlertTriangle size={14} className="text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-yellow-300">{densityWarning}</p>
+            <div className="flex items-start gap-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-500/40 rounded-xl px-4 py-3 shadow-sm">
+              <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-300">{densityWarning}</p>
             </div>
           )}
 
           {/* Generate error */}
           {generateError && (
-            <div className="bg-red-500/10 border border-red-500/25 rounded-xl px-4 py-3 text-xs text-red-300">
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-500/40 rounded-xl px-4 py-3 text-xs font-medium text-red-700 dark:text-red-300 shadow-sm">
               {generateError}
             </div>
           )}
 
           {/* 1. Size */}
-          <FormSection title="Poster Size">
+          <FormSection title="Poster Size" icon={Layout}>
             <SizeSelector
               value={formData.sizePreset}
               onChange={(v) => update('sizePreset', v)}
@@ -482,17 +557,18 @@ export default function GeneratePage() {
             />
           </FormSection>
 
-          <FormSection title="Branding & Logo Layout">
+          {/* 2. Branding */}
+          <FormSection title="Branding & Logo Layout" icon={ImageIcon}>
             <div className="flex flex-col gap-3">
               <div>
-                <label className="text-xs font-semibold text-white/60 mb-1.5 block">Logo Placement Type</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5 block">Logo Placement Type</label>
                 <select
                   value={formData.logoLayout}
                   onChange={(e) => update('logoLayout', e.target.value as 'split' | 'side_by_side')}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 transition"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
                 >
-                  <option value="split" className="bg-[#15121f]">Split Corners (Original)</option>
-                  <option value="side_by_side" className="bg-[#15121f]">Side-by-Side</option>
+                  <option value="split">Split Corners (Original)</option>
+                  <option value="side_by_side">Side-by-Side Header</option>
                 </select>
               </div>
 
@@ -518,12 +594,14 @@ export default function GeneratePage() {
           {/* Dynamic Reorderable Sections */}
           {formData.sectionOrder.map((section, index) => {
             let sectionTitle = '';
+            let SectionCategoryIcon = Type;
             let sectionContent: React.ReactNode = null;
             let isEnabled = false;
 
             if (section === 'content') {
               isEnabled = true;
               sectionTitle = 'Poster Content';
+              SectionCategoryIcon = Type;
               sectionContent = (
                 <div className="flex flex-col gap-4">
                   <BasicInfoFields
@@ -539,10 +617,10 @@ export default function GeneratePage() {
                   />
 
                   {features.extraBadge && (
-                    <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
+                    <div className="flex flex-col gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                       <Toggle
                         id="toggle-extra-badge"
-                        label="Extra Badge pill"
+                        label="Extra Badge Pill"
                         description="Pill badge above headline (e.g. REGISTRATION OPEN)"
                         checked={formData.hasExtraBadge}
                         onChange={(v) => update('hasExtraBadge', v)}
@@ -554,7 +632,7 @@ export default function GeneratePage() {
                           value={formData.extraBadgeText ?? ''}
                           onChange={(e) => update('extraBadgeText', e.target.value)}
                           placeholder="REGISTRATION OPEN"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-purple-500 transition"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
                         />
                       )}
                     </div>
@@ -566,28 +644,55 @@ export default function GeneratePage() {
             else if (section === 'bullets' && features.bulletList) {
               isEnabled = true;
               sectionTitle = 'Bullet List';
+              SectionCategoryIcon = List;
               sectionContent = (
                 <div className="flex flex-col gap-3">
                   <BodyListBuilder
                     items={formData.bulletList}
                     onChange={(v) => update('bulletList', v)}
+                    icons={formData.bulletIcons}
+                    onIconsChange={(v) => update('bulletIcons', v)}
                   />
 
-                  <div className="mt-2 pt-3 border-t border-white/5">
-                    <label className="text-[11px] font-semibold text-white/50 mb-1.5 block">Bullet List Columns (Side-by-Side)</label>
+                  <div className="mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5 block">Bullet List Columns</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[1, 2, 3].map((cols) => (
                         <button
                           key={cols}
                           type="button"
                           onClick={() => update('bulletColumns', cols)}
-                          className={`py-1.5 rounded-lg text-xs font-semibold transition ${
+                          className={`py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
                             formData.bulletColumns === cols
                               ? 'bg-purple-600 text-white shadow-md shadow-purple-900/20'
-                              : 'bg-white/5 hover:bg-white/10 text-white/70'
+                              : 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`}
                         >
-                          {cols} {cols === 1 ? 'Col' : 'Cols'}
+                          {cols} {cols === 1 ? 'Column' : 'Columns'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 mt-1">
+                    <label htmlFor="bullet-alignment" className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Bullet Alignment</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { key: 'left', label: 'Left', icon: AlignLeft },
+                        { key: 'center', label: 'Center', icon: AlignCenter },
+                        { key: 'right', label: 'Right', icon: AlignRight },
+                      ].map(({ key, label, icon: AlignIcon }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => update('bulletAlignment', key as PosterFormData['bulletAlignment'])}
+                          className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                            formData.bulletAlignment === key
+                              ? 'bg-purple-600 text-white shadow-md shadow-purple-900/20'
+                              : 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <AlignIcon size={14} />
+                          {label}
                         </button>
                       ))}
                     </div>
@@ -599,12 +704,13 @@ export default function GeneratePage() {
             else if (section === 'table' && features.table) {
               isEnabled = true;
               sectionTitle = 'Table Builder';
+              SectionCategoryIcon = TableIcon;
               sectionContent = (
                 <div className="flex flex-col gap-3">
                   <Toggle
                     id="toggle-table"
-                    label="Add Table"
-                    description="Shows a styled data table on the poster"
+                    label="Add Data Table"
+                    description="Shows a clean data table on the poster"
                     checked={formData.hasTable}
                     onChange={(v) => update('hasTable', v)}
                   />
@@ -623,12 +729,13 @@ export default function GeneratePage() {
             else if (section === 'badges' && features.iconBadges) {
               isEnabled = true;
               sectionTitle = 'Icon Badges';
+              SectionCategoryIcon = Shield;
               sectionContent = (
                 <div className="flex flex-col gap-3">
                   <Toggle
                     id="toggle-icon-badges"
-                    label="Icon Badge Row"
-                    description="Row of icon + label pairs in the bottom-right"
+                    label="Free-Positioned Icon Badges"
+                    description="Add individual Lucide icons with X/Y position and size controls"
                     checked={formData.hasIconBadges}
                     onChange={(v) => update('hasIconBadges', v)}
                   />
@@ -645,12 +752,13 @@ export default function GeneratePage() {
             else if (section === 'qrcode' && features.qrCode) {
               isEnabled = true;
               sectionTitle = 'QR Code';
+              SectionCategoryIcon = QrCode;
               sectionContent = (
                 <div className="flex flex-col gap-3">
                   <Toggle
                     id="toggle-qr"
                     label="QR Code"
-                    description="Generates QR code from URL, centered on poster"
+                    description="Generates QR code centered on poster from URL"
                     checked={formData.hasQrCode}
                     onChange={(v) => update('hasQrCode', v)}
                   />
@@ -664,6 +772,7 @@ export default function GeneratePage() {
             else if (section === 'image' && features.imageUpload) {
               isEnabled = true;
               sectionTitle = 'Optional Image';
+              SectionCategoryIcon = ImageIcon;
               sectionContent = (
                 <ImageUpload
                   imageDataUrl={formData.imageDataUrl}
@@ -688,34 +797,35 @@ export default function GeneratePage() {
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={handleDrop}
                 onDragEnd={handleDragEnd}
-                className={`relative border border-white/5 bg-[#12101b]/40 rounded-2xl p-4 transition-all duration-150 ${
-                  draggingIndex === index ? 'opacity-40 border-dashed border-purple-500 bg-purple-500/5' : 'hover:border-white/10'
+                className={`relative border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl p-4 transition-all duration-150 shadow-sm ${
+                  draggingIndex === index ? 'opacity-40 border-dashed border-purple-500 bg-purple-50 dark:bg-purple-950/20' : 'hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 {/* Drag Header handle */}
-                <div className="flex items-center justify-between gap-3 mb-3 border-b border-white/5 pb-2">
-                  <div className="flex items-center gap-2 text-white/50 cursor-grab active:cursor-grabbing">
-                    <GripVertical size={14} className="hover:text-white transition flex-shrink-0" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">{sectionTitle}</span>
+                <div className="flex items-center justify-between gap-3 mb-3 border-b border-slate-100 dark:border-slate-800/80 pb-2.5">
+                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 cursor-grab active:cursor-grabbing">
+                    <GripVertical size={16} className="text-slate-400 hover:text-purple-600 transition flex-shrink-0" />
+                    <SectionCategoryIcon size={15} className="text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                    <span className="text-xs font-bold uppercase tracking-wider">{sectionTitle}</span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
                       disabled={index === 0}
                       onClick={() => moveSection(index, 'up')}
-                      className="p-1 rounded bg-white/5 hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                       title="Move Up"
                     >
-                      <ChevronUp size={12} />
+                      <ChevronUp size={14} />
                     </button>
                     <button
                       type="button"
                       disabled={index === formData.sectionOrder.length - 1}
                       onClick={() => moveSection(index, 'down')}
-                      className="p-1 rounded bg-white/5 hover:bg-white/10 text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                       title="Move Down"
                     >
-                      <ChevronDown size={12} />
+                      <ChevronDown size={14} />
                     </button>
                   </div>
                 </div>
@@ -728,9 +838,9 @@ export default function GeneratePage() {
             );
           })}
 
-          {/* Corner watermarks (fixed at bottom of dynamic order list) */}
+          {/* Corner watermarks */}
           {features.watermarkWords && (
-            <FormSection title="Corner Watermarks" collapsible defaultOpen={false}>
+            <FormSection title="Corner Watermarks" icon={Layers} collapsible defaultOpen={false}>
               <div className="flex flex-col gap-3">
                 <Toggle
                   id="toggle-watermark"
@@ -756,24 +866,24 @@ export default function GeneratePage() {
         </div>
 
         {/* Generate button (sticky footer) */}
-        <div className="px-4 py-4 border-t border-white/8 flex-shrink-0 bg-[#0C0B14]">
+        <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white dark:bg-[#0e1320] shadow-lg">
           <button
             type="button"
             id="btn-generate"
             onClick={handleGenerate}
             disabled={isGenerating || !formData.title.trim()}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-bold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed
-              bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500
-              shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40"
+            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-2xl font-bold text-sm text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer
+              bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500
+              shadow-lg shadow-purple-600/30 hover:shadow-purple-600/40 active:scale-[0.99]"
           >
             {isGenerating ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
+                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                Generating PNG...
               </>
             ) : (
               <>
-                <Download size={16} />
+                <Download size={17} />
                 Generate & Download PNG
               </>
             )}
@@ -781,12 +891,12 @@ export default function GeneratePage() {
           <button
             type="button"
             onClick={handleShareLink}
-            className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-xs border border-white/10 bg-white/5 hover:bg-white/10 text-white/80 transition-all duration-200"
+            className="w-full mt-2.5 flex items-center justify-center gap-2 py-2.5 rounded-2xl font-bold text-xs border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 transition-all cursor-pointer shadow-sm"
           >
-            <Link size={13} />
+            <Link size={14} />
             {shareLinkCopied ? 'Link Copied to Clipboard!' : 'Share Edit Link'}
           </button>
-          <p className="text-[10px] text-white/20 text-center mt-2">
+          <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 text-center mt-2">
             Exports at full {formData.sizePreset === 'custom' ? `${Math.round((formData.customWidthIn ?? 8) * 300)}×${Math.round((formData.customHeightIn ?? 5) * 300)}` : ({ banner_small: '1500×600', facebook_post: '1200×630', instagram_square: '1080×1080', instagram_story: '1080×1920', poster_landscape: '1500×2400', poster_portrait_a4: '2481×3508' }[formData.sizePreset])}px · 300 DPI
           </p>
         </div>
@@ -795,24 +905,26 @@ export default function GeneratePage() {
       {/* ═══════════════════════════════════════
           RIGHT PANEL — Live Preview
           ═══════════════════════════════════════ */}
-      <div className="flex-1 flex flex-col h-dvh min-w-0 overflow-hidden bg-[#08070F] border-l border-white/6">
+      <div className="flex-1 flex flex-col h-dvh min-w-0 overflow-hidden bg-slate-200 dark:bg-[#060810] border-l border-slate-200 dark:border-slate-800/80">
         {/* Preview header */}
-        <div className="px-6 py-4 border-b border-white/6 flex items-center justify-between flex-shrink-0">
-          <div>
+        <div className="px-4 py-3 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between flex-shrink-0 bg-white dark:bg-slate-900/90 sm:px-6 sm:py-3.5">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               aria-label="Open form sidebar"
-              className="mr-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 lg:hidden cursor-pointer shadow-sm"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu size={19} />
             </button>
-            <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1 align-middle">
+            <div className="inline-flex rounded-xl border border-slate-300 dark:border-slate-700/80 bg-slate-100 dark:bg-slate-800/80 p-1">
               <button
                 type="button"
                 onClick={() => setActivePanel('preview')}
-                className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition ${
-                  activePanel === 'preview' ? 'bg-white/10 text-white' : 'text-white/35 hover:text-white/70'
+                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition cursor-pointer ${
+                  activePanel === 'preview'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
               >
                 Live Preview
@@ -820,74 +932,75 @@ export default function GeneratePage() {
               <button
                 type="button"
                 onClick={() => setActivePanel('history')}
-                className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest rounded-lg transition ${
-                  activePanel === 'history' ? 'bg-white/10 text-white' : 'text-white/35 hover:text-white/70'
+                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition cursor-pointer ${
+                  activePanel === 'history'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
               >
                 Previous
               </button>
             </div>
-            <p className="text-[10px] text-white/20 mt-0.5">Updates as you type · Export uses full resolution</p>
           </div>
-          <div className="hidden items-center gap-2 text-[10px] text-white/25 sm:flex">
-            <History size={11} />
+          <div className="hidden items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 sm:flex">
+            <History size={14} className="text-purple-600 dark:text-purple-400" />
             <span>{historyItems.length} saved {historySource === 'local' ? 'locally' : 'shared'}</span>
           </div>
         </div>
 
         {activePanel === 'preview' ? (
-          <div className="flex-1 overflow-hidden flex items-center justify-center p-4 sm:p-6">
+          <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center p-3 sm:p-6">
             <PosterPreview
               formData={formData}
               onDensityWarning={setDensityWarning}
             />
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 bg-slate-100 dark:bg-[#060810]">
             {isHistoryLoading ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="h-7 w-7 animate-spin rounded-full border-2 border-white/15 border-t-purple-400" />
-                <p className="mt-4 text-xs text-white/35">Loading previous posters...</p>
+                <div className="h-8 w-8 animate-spin rounded-full border-3 border-slate-300 dark:border-slate-700 border-t-purple-600" />
+                <p className="mt-4 text-xs font-semibold text-slate-600 dark:text-slate-400">Loading previous posters...</p>
               </div>
             ) : historyItems.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <History size={28} className="text-white/20" />
-                <h2 className="mt-4 text-sm font-semibold text-white/70">No previous posters yet</h2>
-                <p className="mt-1 max-w-sm text-xs text-white/30">
+                <History size={32} className="text-slate-400 dark:text-slate-600" />
+                <h2 className="mt-4 text-base font-bold text-slate-800 dark:text-slate-200">No previous posters yet</h2>
+                <p className="mt-1 max-w-sm text-xs font-medium text-slate-500 dark:text-slate-400">
                   Generate and download a poster once. It will be saved here for the team on this shared server.
                 </p>
               </div>
             ) : (
-              <div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
+              <div className="mx-auto flex w-full max-w-4xl flex-col gap-3.5">
                 {historySource === 'local' && (
-                  <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-xs text-yellow-200/80">
+                  <div className="rounded-2xl border border-amber-300 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs font-semibold text-amber-800 dark:text-amber-200 shadow-sm">
                     Shared history could not load, so this is showing only this browser's local saved posters.
                   </div>
                 )}
                 {historyItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex flex-col gap-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="truncate text-sm font-semibold text-white/80">{item.title}</h2>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/35">
+                        <h2 className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{item.title}</h2>
+                        <span className="rounded-full border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-0.5 text-[10px] uppercase font-bold text-purple-700 dark:text-purple-300">
                           {item.sizePreset.replaceAll('_', ' ')}
                         </span>
                       </div>
                       {item.subtitle && (
-                        <p className="mt-1 line-clamp-1 text-xs text-white/35">{item.subtitle}</p>
+                        <p className="mt-1 line-clamp-1 text-xs text-slate-600 dark:text-slate-400">{item.subtitle}</p>
                       )}
-                      <p className="mt-2 text-[10px] text-white/25">{formatSavedAt(item.savedAt)}</p>
+                      <p className="mt-2 text-[10px] font-medium text-slate-400 dark:text-slate-500">{formatSavedAt(item.savedAt)}</p>
                     </div>
                     <div className="flex flex-shrink-0 items-center gap-2">
                       <button
                         type="button"
                         onClick={() => loadFromHistory(item)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 py-2 text-xs font-semibold text-purple-200 hover:bg-purple-500/20"
+                        className="inline-flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 px-3.5 py-2 text-xs font-bold text-white shadow-md transition cursor-pointer"
                       >
-                        <RotateCcw size={13} />
+                        <RotateCcw size={14} />
                         Load
                       </button>
                       {historySource === 'local' && (
@@ -895,9 +1008,9 @@ export default function GeneratePage() {
                           type="button"
                           aria-label={`Delete ${item.title}`}
                           onClick={() => deleteHistoryItem(item.id)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/35 hover:border-red-400/30 hover:bg-red-400/10 hover:text-red-300"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 transition cursor-pointer"
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>

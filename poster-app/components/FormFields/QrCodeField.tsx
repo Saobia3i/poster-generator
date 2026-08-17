@@ -12,8 +12,8 @@ export default function QrCodeField({ url, onChange }: QrCodeFieldProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 mb-0.5">
-        <QrCode size={13} className="text-purple-400" />
-        <label htmlFor="field-qr-url" className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+        <QrCode size={15} className="text-purple-600 dark:text-purple-400" />
+        <label htmlFor="field-qr-url" className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
           QR Code URL
         </label>
       </div>
@@ -23,10 +23,10 @@ export default function QrCodeField({ url, onChange }: QrCodeFieldProps) {
         value={url}
         onChange={(e) => onChange(e.target.value)}
         placeholder="https://example.com/register"
-        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-purple-500 focus:bg-purple-500/5 transition"
+        className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition"
       />
       {url && !url.startsWith('http') && (
-        <p className="text-[10px] text-yellow-400/70">⚠ Include https:// for a valid QR code</p>
+        <p className="text-xs font-medium text-amber-600 dark:text-amber-400">⚠ Include https:// for a valid QR code</p>
       )}
     </div>
   );

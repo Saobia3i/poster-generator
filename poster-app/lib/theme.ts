@@ -150,7 +150,7 @@ export const VARIANT_FEATURES = {
     subtitle: true,
     bulletList: true,
     table: true,
-    iconBadges: false,
+    iconBadges: true,
     qrCode: true,
     imageUpload: true,
     watermarkWords: false,
@@ -160,7 +160,7 @@ export const VARIANT_FEATURES = {
     subtitle: true, // short tag line only
     bulletList: false,
     table: false,
-    iconBadges: false,
+    iconBadges: true,
     qrCode: false,
     imageUpload: false,
     watermarkWords: false,

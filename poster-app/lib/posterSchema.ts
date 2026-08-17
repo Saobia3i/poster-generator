@@ -10,6 +10,9 @@ import { z } from 'zod';
 export const IconBadgeSchema = z.object({
   icon: z.string().default('shield'),
   label: z.string().default(''),
+  x: z.number().min(0).max(100).default(82),
+  y: z.number().min(0).max(100).default(78),
+  size: z.enum(['small', 'medium', 'large']).default('medium'),
 });
 
 export const LogoPositionSchema = z.enum([
@@ -45,6 +48,8 @@ export const PosterFormSchema = z.object({
 
   // ── Body content ──────────────────────────
   bulletList: z.array(z.string()).default([]),
+  // Optional Lucide icon for each bullet. A null entry preserves the normal dot.
+  bulletIcons: z.array(z.string().nullable()).default([]),
 
   // ── Table ─────────────────────────────────
   hasTable: z.boolean().default(false),
@@ -82,6 +87,7 @@ export const PosterFormSchema = z.object({
   sectionOrder: z.array(z.enum(['content', 'bullets', 'table', 'badges', 'qrcode', 'image']))
     .default(['content', 'bullets', 'table', 'badges', 'qrcode', 'image']),
   bulletColumns: z.number().int().min(1).max(3).default(1),
+  bulletAlignment: z.enum(['left', 'center', 'right']).default('left'),
   logoLayout: z.enum(['split', 'side_by_side']).default('split'),
 
   // ── AI Assist (form-side only, not sent to generate-poster) ──
@@ -102,6 +108,12 @@ export const AIContentSchema = z.object({
       headers: z.array(z.string()),
       rows: z.array(z.array(z.string())),
     })
+    .optional(),
+  // Names are validated against the supported Lucide set by the API.
+  // The form always keeps the user in control of the final selection.
+  iconBadges: z
+    .array(z.object({ icon: z.string(), label: z.string() }))
+    .max(4)
     .optional(),
 });
 

@@ -327,15 +327,28 @@ function LandscapeLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, waterma
           if (section === 'bullets' && formData.bulletList.length > 0) {
             const cols = formData.bulletColumns || 1;
             const bulletSlices = previewChunkArray(formData.bulletList, cols);
+            const align = formData.bulletAlignment || 'left';
+            const justifyPos = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+            const alignPos = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
 
             return (
-              <div key="bullets" style={{ display: 'flex', flexDirection: 'row', gap: sp(4), width: '100%', flexShrink: 0 }}>
+              <div
+                key="bullets"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: sp(4),
+                  width: '100%',
+                  justifyContent: justifyPos,
+                  flexShrink: 0,
+                }}
+              >
                 {bulletSlices.map((colItems, cIdx) => (
-                  <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: sp(2) }}>
+                  <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: cols > 1 ? 1 : undefined, gap: sp(2), alignItems: alignPos }}>
                     {colItems.map((item, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: sp(2.5) }}>
                         <div style={{ width: sp(1.2), height: sp(1.2), borderRadius: '50%', backgroundColor: COLORS.accentLine, flexShrink: 0 }} />
-                        <span style={{ fontSize: bodyPx, color: COLORS.bodyText, fontWeight: 600, fontFamily: 'sans-serif', letterSpacing: '0.02em' }}>{item}</span>
+                        <span style={{ fontSize: bodyPx, color: COLORS.bodyText, fontWeight: 600, fontFamily: 'sans-serif', letterSpacing: '0.02em', textAlign: align }}>{item}</span>
                       </div>
                     ))}
                   </div>
@@ -572,6 +585,9 @@ function PortraitLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, logoH, v
             if (section === 'bullets' && formData.bulletList.length > 0) {
               const cols = formData.bulletColumns || 1;
               const bulletSlices = previewChunkArray(formData.bulletList, cols);
+              const align = formData.bulletAlignment || 'left';
+              const justifyPos = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
+              const alignPos = align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center';
 
               return (
                 <div
@@ -581,16 +597,16 @@ function PortraitLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, logoH, v
                     flexDirection: 'row',
                     gap: sp(4),
                     alignSelf: 'stretch',
-                    justifyContent: 'center',
+                    justifyContent: justifyPos,
                     flexShrink: 0,
                   }}
                 >
                   {bulletSlices.map((colItems, cIdx) => (
-                    <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: sp(2), alignItems: cols === 1 ? 'center' : 'flex-start' }}>
+                    <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: cols > 1 ? 1 : undefined, gap: sp(2), alignItems: alignPos }}>
                       {colItems.map((item, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: sp(2.5) }}>
                           <div style={{ width: sp(1.2), height: sp(1.2), borderRadius: '50%', backgroundColor: COLORS.accentLine, flexShrink: 0 }} />
-                          <span style={{ fontSize: bodyPx, color: COLORS.bodyText, fontWeight: 600, fontFamily: 'sans-serif' }}>{item}</span>
+                          <span style={{ fontSize: bodyPx, color: COLORS.bodyText, fontWeight: 600, fontFamily: 'sans-serif', textAlign: align }}>{item}</span>
                         </div>
                       ))}
                     </div>

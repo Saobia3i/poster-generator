@@ -22,19 +22,15 @@ export default function SizeSelector({
 }: SizeSelectorProps) {
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+      <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
         Poster Size
       </label>
 
       {/* Size preset cards */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2.5 min-[380px]:grid-cols-2">
         {(Object.entries(SIZE_PRESETS) as [SizePresetKey, typeof SIZE_PRESETS[SizePresetKey]][]).map(
           ([key, preset]) => {
             const isSelected = value === key;
-            const aspectRatio =
-              preset.widthPx > 0
-                ? (preset.widthPx / preset.heightPx).toFixed(2)
-                : null;
 
             return (
               <button
@@ -42,10 +38,10 @@ export default function SizeSelector({
                 key={key}
                 id={`size-${key}`}
                 onClick={() => onChange(key)}
-                className={`rounded-xl p-3 text-left border transition-all duration-200 ${
+                className={`rounded-xl p-3 text-left border transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/10'
-                    : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/8'
+                    ? 'border-purple-600 dark:border-purple-400 bg-purple-100/90 dark:bg-purple-950/60 shadow-md shadow-purple-900/10'
+                    : 'border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-900/90 hover:border-purple-500/60 dark:hover:border-purple-400/60 hover:bg-purple-50/60 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
@@ -54,13 +50,13 @@ export default function SizeSelector({
                     <AspectRect presetKey={key} selected={isSelected} />
                   </div>
                   <span
-                    className={`text-xs font-semibold ${isSelected ? 'text-purple-300' : 'text-white/70'}`}
+                    className={`text-xs font-bold ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-slate-800 dark:text-slate-200'}`}
                   >
                     {preset.name}
                   </span>
                 </div>
                 {preset.widthPx > 0 && (
-                  <p className="text-[10px] text-white/30 font-mono">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 font-mono">
                     {preset.widthPx} × {preset.heightPx}px
                   </p>
                 )}
@@ -72,9 +68,9 @@ export default function SizeSelector({
 
       {/* Custom size inputs */}
       {value === 'custom' && (
-        <div className="flex gap-3 mt-1">
+        <div className="flex flex-col gap-3 mt-1 sm:flex-row">
           <div className="flex-1">
-            <label className="text-[10px] text-white/40 uppercase tracking-wide block mb-1">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide block mb-1">
               Width (inches)
             </label>
             <input
@@ -86,11 +82,11 @@ export default function SizeSelector({
               value={customWidthIn ?? ''}
               onChange={(e) => onCustomWidth(parseFloat(e.target.value))}
               placeholder="e.g. 8"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-purple-500 transition"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
             />
           </div>
           <div className="flex-1">
-            <label className="text-[10px] text-white/40 uppercase tracking-wide block mb-1">
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide block mb-1">
               Height (inches)
             </label>
             <input
@@ -102,11 +98,11 @@ export default function SizeSelector({
               value={customHeightIn ?? ''}
               onChange={(e) => onCustomHeight(parseFloat(e.target.value))}
               placeholder="e.g. 5"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/20 focus:outline-none focus:border-purple-500 transition"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition"
             />
           </div>
           <div className="flex items-end pb-2">
-            <span className="text-[10px] text-white/30">= {((customWidthIn ?? 0) * 300) | 0} × {((customHeightIn ?? 0) * 300) | 0} px @ 300 DPI</span>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">= {((customWidthIn ?? 0) * 300) | 0} × {((customHeightIn ?? 0) * 300) | 0} px @ 300 DPI</span>
           </div>
         </div>
       )}
@@ -116,7 +112,7 @@ export default function SizeSelector({
 
 /** Small visual representation of the poster aspect ratio */
 function AspectRect({ presetKey, selected }: { presetKey: SizePresetKey; selected: boolean }) {
-  const color = selected ? '#a78bfa' : '#ffffff40';
+  const color = selected ? '#a855f7' : 'currentColor';
   const rects: Record<SizePresetKey, { w: number; h: number }> = {
     banner_small:      { w: 28, h: 11 },
     facebook_post:     { w: 23, h: 12 },

@@ -24,6 +24,7 @@ import React from 'react';
 import { COLORS, FONTS, spacing, SAFE_MARGINS } from './theme';
 import { ContentTier, LOGO_SCALE } from './logoScale';
 import { ICON_PATHS, FALLBACK_ICON } from './iconPaths';
+import { icons } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────
 // TYPES
@@ -32,6 +33,9 @@ import { ICON_PATHS, FALLBACK_ICON } from './iconPaths';
 export interface IconBadge {
   icon: string;
   label: string;
+  x: number;
+  y: number;
+  size: 'small' | 'medium' | 'large';
 }
 
 export interface PosterAssets {
@@ -48,6 +52,7 @@ export interface LayoutData {
   clubLogoPosition: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'hidden';
   varsityLogoPosition: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'hidden';
   bulletList: string[];
+  bulletIcons: (string | null)[];
   hasTable: boolean;
   tableHeaders: string[];
   tableRows: string[][];
@@ -65,6 +70,7 @@ export interface LayoutData {
   heightPx: number;
   sectionOrder: ('content' | 'bullets' | 'table' | 'badges' | 'qrcode' | 'image')[];
   bulletColumns: number;
+  bulletAlignment: 'left' | 'center' | 'right';
   logoLayout: 'split' | 'side_by_side';
   // Image frame
   imageFrame?: 'none' | 'circle' | 'square' | 'rectangle';
@@ -114,6 +120,17 @@ function SatoriIcon({
   size: number;
   color: string;
 }) {
+  const lucideIcons = icons as unknown as Record<string, unknown>;
+  const lucideNode = lucideIcons[name] ?? lucideIcons[toPascalCase(name)];
+  if (lucideNode) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {(lucideNode as unknown as [string, Record<string, string>][]).map(([tag, attrs], i) =>
+          React.createElement(tag, { ...attrs, key: i })
+        )}
+      </svg>
+    );
+  }
   const paths = ICON_PATHS[name] || ICON_PATHS[FALLBACK_ICON];
   return (
     <svg
@@ -130,6 +147,81 @@ function SatoriIcon({
         <path key={i} d={d} />
       ))}
     </svg>
+  );
+}
+
+function toPascalCase(value: string) {
+  return value.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join('');
+}
+
+function AbsoluteIconLayer({ badges, widthPx, heightPx }: { badges: IconBadge[]; widthPx: number; heightPx: number }) {
+  const sizeFor = { small: 0.045, medium: 0.07, large: 0.1 } as const;
+  return (
+    <>
+      {badges.map((badge, index) => {
+        const iconSize = Math.round(widthPx * sizeFor[badge.size]);
+        // Keep icon artwork and its optional label inside the safe print area
+        // at every aspect ratio, even when the user enters 0 or 100.
+        const xMargin = Math.max(6, (iconSize / widthPx) * 70);
+        const yMargin = Math.max(6, (iconSize / heightPx) * 70);
+        const x = Math.min(100 - xMargin, Math.max(xMargin, badge.x));
+        const y = Math.min(100 - yMargin, Math.max(yMargin, badge.y));
+        return <div key={index} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 20 }}>
+          <SatoriIcon name={badge.icon} size={iconSize} color={COLORS.accentLine} />
+          {badge.label && <span style={{ fontFamily: FONTS.body, fontSize: Math.max(12, Math.round(iconSize * 0.28)), color: COLORS.bodyText }}>{badge.label.toUpperCase()}</span>}
+        </div>;
+      })}
+    </>
+  );
+}
+
+/** Shared Lucide-compatible icon row used by every poster variant. */
+function IconBadgeRow({
+  badges,
+  widthPx,
+  compact = false,
+}: {
+  badges: IconBadge[];
+  widthPx: number;
+  compact?: boolean;
+}) {
+  const iconSize = spacing(compact ? 5 : 8, widthPx);
+  const labelSize = spacing(compact ? 1.6 : 2.1, widthPx);
+
+  return (
+    <div
+      style={{
+        display: 'none',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: spacing(compact ? 2 : 3, widthPx),
+        alignItems: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {badges.map((badge, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing(compact ? 0.7 : 1.3, widthPx) }}>
+          <div
+            style={{
+              width: iconSize,
+              height: iconSize,
+              borderRadius: '50%',
+              border: `${spacing(0.4, widthPx)}px solid ${COLORS.accentLine}`,
+              backgroundColor: COLORS.badgeBg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <SatoriIcon name={badge.icon} size={Math.round(iconSize * 0.55)} color={COLORS.accentLine} />
+          </div>
+          <span style={{ fontFamily: FONTS.body, fontWeight: 600, fontSize: labelSize, color: COLORS.bodyText, textAlign: 'center' }}>
+            {badge.label.toUpperCase()}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -570,22 +662,19 @@ export function renderLandscapeInfoPoster(
                   flexDirection: 'row',
                   gap: spacing(4, W),
                   width: '100%',
+                  justifyContent: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center',
                   flexShrink: 0,
                 }}
               >
                 {bulletSlices.map((colItems, cIdx) => (
-                  <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: spacing(2, W) }}>
+                  <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: cols > 1 ? 1 : undefined, gap: spacing(2, W), alignItems: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center' }}>
                     {colItems.map((item, i) => (
                       <div key={i} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: spacing(2.5, W) }}>
-                        <div
-                          style={{
-                            width: spacing(1.2, W),
-                            height: spacing(1.2, W),
-                            borderRadius: '50%',
-                            backgroundColor: COLORS.accentLine,
-                            flexShrink: 0,
-                          }}
-                        />
+                        {data.bulletIcons[i * cols + cIdx] ? (
+                          <SatoriIcon name={data.bulletIcons[i * cols + cIdx] as string} size={Math.round(spacing(3.2, W))} color={COLORS.accentLine} />
+                        ) : (
+                          <div style={{ width: spacing(1.2, W), height: spacing(1.2, W), borderRadius: '50%', backgroundColor: COLORS.accentLine, flexShrink: 0 }} />
+                        )}
                         <span
                           style={{
                             fontFamily: FONTS.body,
@@ -703,6 +792,7 @@ export function renderLandscapeInfoPoster(
       }}
     >
       <BackgroundPattern patternDataUrl={assets.patternDataUrl} widthPx={W} />
+      {data.hasIconBadges && <AbsoluteIconLayer badges={data.iconBadges} widthPx={W} heightPx={H} />}
 
       {/* Framed uploaded image — absolutely positioned overlay */}
       {assets.uploadedImageDataUrl && (
@@ -986,6 +1076,7 @@ export function renderPortraitQrPoster(
       }}
     >
       <BackgroundPattern patternDataUrl={assets.patternDataUrl} widthPx={W} />
+      {data.hasIconBadges && <AbsoluteIconLayer badges={data.iconBadges} widthPx={W} heightPx={H} />}
 
       {/* Framed uploaded image — absolutely positioned overlay */}
       {assets.uploadedImageDataUrl && (
@@ -1075,6 +1166,14 @@ export function renderPortraitQrPoster(
               );
             }
 
+            if (section === 'badges' && data.hasIconBadges && data.iconBadges.length > 0) {
+              return (
+                <div key="badges" style={{ display: 'flex', justifyContent: 'center', alignSelf: 'stretch', flexShrink: 0 }}>
+                  <IconBadgeRow badges={data.iconBadges} widthPx={W} />
+                </div>
+              );
+            }
+
             if (section === 'qrcode' && data.hasQrCode && assets.qrDataUrl) {
               return (
                 <div key="qrcode" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
@@ -1137,30 +1236,27 @@ export function renderPortraitQrPoster(
                     display: 'flex',
                     flexDirection: 'row',
                     gap: spacing(4, W),
-                    alignSelf: 'stretch',
-                    justifyContent: 'center',
+                  alignSelf: 'stretch',
+                  justifyContent: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center',
                     flexShrink: 0,
                   }}
                 >
                   {bulletSlices.map((colItems, cIdx) => (
-                    <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: spacing(2, W), alignItems: cols === 1 ? 'center' : 'flex-start' }}>
+                    <div key={cIdx} style={{ display: 'flex', flexDirection: 'column', flex: cols > 1 ? 1 : undefined, gap: spacing(2, W), alignItems: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center' }}>
                       {colItems.map((item, i) => (
                         <div key={i} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: spacing(2.5, W) }}>
-                          <div
-                            style={{
-                              width: spacing(1.2, W),
-                              height: spacing(1.2, W),
-                              borderRadius: '50%',
-                              backgroundColor: COLORS.accentLine,
-                              flexShrink: 0,
-                            }}
-                          />
+                          {data.bulletIcons[i * cols + cIdx] ? (
+                            <SatoriIcon name={data.bulletIcons[i * cols + cIdx] as string} size={Math.round(spacing(3.2, W))} color={COLORS.accentLine} />
+                          ) : (
+                            <div style={{ width: spacing(1.2, W), height: spacing(1.2, W), borderRadius: '50%', backgroundColor: COLORS.accentLine, flexShrink: 0 }} />
+                          )}
                           <span
                             style={{
                               fontFamily: FONTS.body,
                               fontWeight: 600,
                               fontSize: bodyFontSize,
                               color: COLORS.bodyText,
+                              textAlign: data.bulletAlignment || 'left',
                             }}
                           >
                             {item}
@@ -1206,6 +1302,11 @@ export function renderBanner(
 
   const headlineFontSize = spacing(6.0, W);
   const tagFontSize = spacing(2.5, W);
+  const hasIconBadges = data.hasIconBadges && data.iconBadges.length > 0;
+  const badgeIndex = data.sectionOrder.indexOf('badges');
+  const contentIndex = data.sectionOrder.indexOf('content');
+  const badgesAboveHeadline = hasIconBadges && badgeIndex < contentIndex;
+  const badgesBelowHeadline = hasIconBadges && badgeIndex === contentIndex + 1;
   
   // Make logos significantly smaller as requested (reduced from spacing(12) / spacing(13.5))
   const logoH = spacing(6.5, W);
@@ -1300,6 +1401,7 @@ export function renderBanner(
       }}
     >
       <BackgroundPattern patternDataUrl={assets.patternDataUrl} widthPx={W} />
+      {data.hasIconBadges && <AbsoluteIconLayer badges={data.iconBadges} widthPx={W} heightPx={H} />}
 
       {/* Logos Row — Absolute positioned at the top */}
       <div
@@ -1331,6 +1433,11 @@ export function renderBanner(
           boxSizing: 'border-box',
         }}
       >
+        {badgesAboveHeadline && (
+          <div style={{ display: 'flex', marginBottom: spacing(3, W), maxWidth: spacing(72, W) }}>
+            <IconBadgeRow badges={data.iconBadges.slice(0, 4)} widthPx={W} compact />
+          </div>
+        )}
         <div
           style={{
             fontFamily: FONTS.headline,
@@ -1346,6 +1453,11 @@ export function renderBanner(
         >
           {data.title.toUpperCase()}
         </div>
+        {badgesBelowHeadline && (
+          <div style={{ display: 'flex', marginTop: spacing(3, W), maxWidth: spacing(72, W) }}>
+            <IconBadgeRow badges={data.iconBadges.slice(0, 4)} widthPx={W} compact />
+          </div>
+        )}
         {data.subtitle && (
           <div
             style={{
@@ -1358,6 +1470,11 @@ export function renderBanner(
             }}
           >
             {data.subtitle}
+          </div>
+        )}
+        {hasIconBadges && !badgesAboveHeadline && !badgesBelowHeadline && (
+          <div style={{ display: 'flex', marginTop: spacing(3, W), maxWidth: spacing(72, W) }}>
+            <IconBadgeRow badges={data.iconBadges.slice(0, 4)} widthPx={W} compact />
           </div>
         )}
       </div>
