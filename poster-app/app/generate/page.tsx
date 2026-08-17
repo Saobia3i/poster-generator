@@ -59,6 +59,8 @@ const defaultFormData: PosterFormData = {
   subtitle: '',
   clubLogoPosition: 'top-center',
   varsityLogoPosition: 'bottom-center',
+  hasPartnerLogo: false,
+  partnerLogoPosition: 'top-right',
   bulletList: ['CYBERSECURITY', 'AI & MACHINE LEARNING'],
   bulletIcons: [null, null],
   hasTable: false,
@@ -588,6 +590,64 @@ export default function GeneratePage() {
                   />
                 </div>
               )}
+
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-3">
+                <Toggle
+                  id="toggle-partner-logo"
+                  label="Add Partner / Sponsor Logo"
+                  description="Upload custom PNG/JPEG logo for partners or co-organizers"
+                  checked={formData.hasPartnerLogo ?? false}
+                  onChange={(v) => update('hasPartnerLogo', v)}
+                />
+
+                {formData.hasPartnerLogo && (
+                  <div className="flex flex-col gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-200 block">
+                      Partner Logo Image (PNG / JPEG)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            update('partnerLogoDataUrl', ev.target?.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer"
+                    />
+
+                    {formData.partnerLogoDataUrl && (
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <div className="flex items-center gap-2">
+                          <img src={formData.partnerLogoDataUrl} alt="Partner Logo Preview" className="h-8 max-w-[100px] object-contain rounded bg-white p-1 border border-slate-200" />
+                          <span className="text-[11px] text-slate-500 font-medium">Uploaded</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => update('partnerLogoDataUrl', undefined)}
+                          className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+
+                    {formData.logoLayout === 'split' && (
+                      <LogoPlacementSelect
+                        id="partner-logo-position"
+                        label="Partner logo position"
+                        value={formData.partnerLogoPosition ?? 'top-right'}
+                        onChange={(v) => update('partnerLogoPosition', v)}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </FormSection>
 
@@ -897,7 +957,7 @@ export default function GeneratePage() {
             {shareLinkCopied ? 'Link Copied to Clipboard!' : 'Share Edit Link'}
           </button>
           <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 text-center mt-2">
-            Exports at full {formData.sizePreset === 'custom' ? `${Math.round((formData.customWidthIn ?? 8) * 300)}×${Math.round((formData.customHeightIn ?? 5) * 300)}` : ({ banner_small: '1500×600', facebook_post: '1200×630', instagram_square: '1080×1080', instagram_story: '1080×1920', poster_landscape: '1500×2400', poster_portrait_a4: '2481×3508' }[formData.sizePreset])}px · 300 DPI
+            Exports at full {formData.sizePreset === 'custom' ? `${Math.round((formData.customWidthIn ?? 8) * 300)}×${Math.round((formData.customHeightIn ?? 5) * 300)}` : ({ banner_small: '1500×600', facebook_post: '1200×630', instagram_square: '1080×1080', instagram_story: '1080×1920', instagram_portrait_4_5: '1080×1350', poster_landscape: '1500×2400', poster_portrait_a4: '2481×3508' }[formData.sizePreset])}px · 300 DPI
           </p>
         </div>
       </div>

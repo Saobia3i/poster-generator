@@ -44,6 +44,7 @@ export interface PosterAssets {
   patternDataUrl: string | null;
   qrDataUrl?: string | null;
   uploadedImageDataUrl?: string | null;
+  partnerLogoDataUrl?: string | null;
 }
 
 export interface LayoutData {
@@ -51,6 +52,9 @@ export interface LayoutData {
   subtitle?: string;
   clubLogoPosition: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'hidden';
   varsityLogoPosition: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'hidden';
+  hasPartnerLogo?: boolean;
+  partnerLogoDataUrl?: string;
+  partnerLogoPosition?: 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'hidden';
   bulletList: string[];
   bulletIcons: (string | null)[];
   hasTable: boolean;
@@ -472,11 +476,12 @@ export function renderLandscapeInfoPoster(
   const varsityLogoH = Math.round(logoContainerH * 0.85 * logoScale);
   const ICON_BADGES_PER_ROW = 3;
 
-  const renderLogo = (type: 'club' | 'varsity') => {
+  const renderLogo = (type: 'club' | 'varsity' | 'partner') => {
     const isClub = type === 'club';
-    const src = isClub ? assets.clubLogoDataUrl : assets.varsityLogoDataUrl;
-    const logoH = isClub ? clubLogoH : varsityLogoH;
-    const fallbackText = isClub ? 'AUSTCAIC' : 'AUST';
+    const isVarsity = type === 'varsity';
+    const src = isClub ? assets.clubLogoDataUrl : isVarsity ? assets.varsityLogoDataUrl : data.partnerLogoDataUrl;
+    const logoH = isClub ? clubLogoH : isVarsity ? varsityLogoH : clubLogoH;
+    const fallbackText = isClub ? 'AUSTCAIC' : isVarsity ? 'AUST' : 'PARTNER';
 
     return src ? (
       <img src={src} style={{ height: logoH, width: 'auto', objectFit: 'contain' }} />
@@ -499,12 +504,13 @@ export function renderLandscapeInfoPoster(
     );
   };
 
-  type LogoKind = 'club' | 'varsity';
+  type LogoKind = 'club' | 'varsity' | 'partner';
   type LogoSlot = 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
   const getLogosForSlot = (slot: LogoSlot) => [
     data.clubLogoPosition === slot ? 'club' : null,
     data.varsityLogoPosition === slot ? 'varsity' : null,
+    data.hasPartnerLogo && data.partnerLogoPosition === slot ? 'partner' : null,
   ].filter(Boolean) as LogoKind[];
 
   const renderLogoGroup = (logos: LogoKind[]) => (
@@ -663,6 +669,9 @@ export function renderLandscapeInfoPoster(
                   gap: spacing(4, W),
                   width: '100%',
                   justifyContent: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center',
+                  paddingLeft: spacing(6, W),
+                  paddingRight: spacing(6, W),
+                  boxSizing: 'border-box',
                   flexShrink: 0,
                 }}
               >
@@ -930,19 +939,21 @@ export function renderPortraitQrPoster(
   const varsityLogoH = Math.round(spacing(20, W) * headerLogoScale);
   const qrSize = spacing(35, W);
 
-  type LogoKind = 'club' | 'varsity';
+  type LogoKind = 'club' | 'varsity' | 'partner';
   type LogoSlot = 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
   const getLogosForSlot = (slot: LogoSlot) => [
     data.clubLogoPosition === slot ? 'club' : null,
     data.varsityLogoPosition === slot ? 'varsity' : null,
+    data.hasPartnerLogo && data.partnerLogoPosition === slot ? 'partner' : null,
   ].filter(Boolean) as LogoKind[];
 
-  const renderLogo = (type: 'club' | 'varsity') => {
+  const renderLogo = (type: 'club' | 'varsity' | 'partner') => {
     const isClub = type === 'club';
-    const src = isClub ? assets.clubLogoDataUrl : assets.varsityLogoDataUrl;
-    const logoH = isClub ? clubLogoH : varsityLogoH;
-    const fallbackText = isClub ? 'AUSTCAIC' : 'AUST';
+    const isVarsity = type === 'varsity';
+    const src = isClub ? assets.clubLogoDataUrl : isVarsity ? assets.varsityLogoDataUrl : data.partnerLogoDataUrl;
+    const logoH = isClub ? clubLogoH : isVarsity ? varsityLogoH : clubLogoH;
+    const fallbackText = isClub ? 'AUSTCAIC' : isVarsity ? 'AUST' : 'PARTNER';
 
     return src ? (
       <img src={src} style={{ height: logoH, width: 'auto', objectFit: 'contain' }} />
@@ -1236,8 +1247,11 @@ export function renderPortraitQrPoster(
                     display: 'flex',
                     flexDirection: 'row',
                     gap: spacing(4, W),
-                  alignSelf: 'stretch',
-                  justifyContent: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center',
+                    alignSelf: 'stretch',
+                    justifyContent: data.bulletAlignment === 'left' ? 'flex-start' : data.bulletAlignment === 'right' ? 'flex-end' : 'center',
+                    paddingLeft: spacing(6, W),
+                    paddingRight: spacing(6, W),
+                    boxSizing: 'border-box',
                     flexShrink: 0,
                   }}
                 >

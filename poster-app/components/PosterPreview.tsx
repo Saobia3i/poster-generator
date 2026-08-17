@@ -94,8 +94,8 @@ export default function PosterPreview({ formData, onDensityWarning }: PosterPrev
   const iconSizePx = sp(7);
   const badgeLabelPx = sp(2.2);
 
-  const mx = sp(10);
-  const my = sizePreset === 'poster_portrait_a4' ? sp(14) : sp(10);
+  const mx = sizePreset === 'poster_portrait_a4' ? sp(20) : sizePreset === 'poster_landscape' ? sp(18) : sp(12);
+  const my = sizePreset === 'poster_portrait_a4' ? sp(16) : sp(12);
   const logoContainerH = sp(14);
   const clubLogoH = logoContainerH * logoScale;
   const varsityLogoH = logoContainerH * 0.85 * logoScale;
@@ -197,15 +197,19 @@ function LandscapeLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, waterma
   iconSizePx: number; badgeLabelPx: number;
   features: typeof VARIANT_FEATURES[keyof typeof VARIANT_FEATURES];
 }) {
-  type LogoKind = 'club' | 'varsity';
+  type LogoKind = 'club' | 'varsity' | 'partner';
   type LogoSlot = 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
   const getLogosForSlot = (slot: LogoSlot) => [
     formData.clubLogoPosition === slot ? 'club' : null,
     formData.varsityLogoPosition === slot ? 'varsity' : null,
+    formData.hasPartnerLogo && formData.partnerLogoPosition === slot ? 'partner' : null,
   ].filter(Boolean) as LogoKind[];
 
   const renderLogoByKey = (key: LogoKind) => {
+    if (key === 'partner') {
+      return <LogoBox h={clubLogoH} src={formData.partnerLogoDataUrl || '/templates/logo-austcaic.png'} isRound={false} />;
+    }
     return key === 'club' ? (
       <LogoBox h={clubLogoH} src="/templates/logo-austcaic.png" isRound={false} />
     ) : (
@@ -340,6 +344,9 @@ function LandscapeLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, waterma
                   gap: sp(4),
                   width: '100%',
                   justifyContent: justifyPos,
+                  paddingLeft: sp(6),
+                  paddingRight: sp(6),
+                  boxSizing: 'border-box',
                   flexShrink: 0,
                 }}
               >
@@ -437,15 +444,19 @@ function PortraitLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, logoH, v
   const brandLogoH = Math.max(logoH, sp(18));
   const brandVarsityH = Math.max(varsityH, sp(20));
 
-  type LogoKind = 'club' | 'varsity';
+  type LogoKind = 'club' | 'varsity' | 'partner';
   type LogoSlot = 'top-left' | 'top-center' | 'top-right' | 'center' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
   const getLogosForSlot = (slot: LogoSlot) => [
     formData.clubLogoPosition === slot ? 'club' : null,
     formData.varsityLogoPosition === slot ? 'varsity' : null,
+    formData.hasPartnerLogo && formData.partnerLogoPosition === slot ? 'partner' : null,
   ].filter(Boolean) as LogoKind[];
 
   const renderLogoByKey = (key: LogoKind) => {
+    if (key === 'partner') {
+      return <LogoBox h={brandLogoH} src={formData.partnerLogoDataUrl || '/templates/logo-austcaic.png'} isRound={false} />;
+    }
     return key === 'club' ? (
       <LogoBox h={brandLogoH} src="/templates/logo-austcaic.png" isRound={false} />
     ) : (
@@ -598,6 +609,9 @@ function PortraitLayout({ formData, sp, headlinePx, subtitlePx, bodyPx, logoH, v
                     gap: sp(4),
                     alignSelf: 'stretch',
                     justifyContent: justifyPos,
+                    paddingLeft: sp(6),
+                    paddingRight: sp(6),
+                    boxSizing: 'border-box',
                     flexShrink: 0,
                   }}
                 >

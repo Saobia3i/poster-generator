@@ -118,6 +118,7 @@ function AspectRect({ presetKey, selected }: { presetKey: SizePresetKey; selecte
     facebook_post:     { w: 23, h: 12 },
     instagram_square:  { w: 16, h: 16 },
     instagram_story:   { w: 10, h: 18 },
+    instagram_portrait_4_5: { w: 14, h: 17.5 },
     poster_landscape:  { w: 15, h: 24 },
     poster_portrait_a4:{ w: 15, h: 21 },
     custom:            { w: 18, h: 18 },

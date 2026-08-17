@@ -46,6 +46,13 @@ export const SIZE_PRESETS = {
     widthPx: 1080,
     heightPx: 1920,
   },
+  instagram_portrait_4_5: {
+    name: 'Instagram Portrait (4:5)',
+    widthIn: 3.6,
+    heightIn: 4.5,
+    widthPx: 1080,
+    heightPx: 1350,
+  },
   poster_landscape: {
     name: '5x8 Poster',
     widthIn: 5,
@@ -116,6 +123,7 @@ export const PRESET_TO_VARIANT = {
   facebook_post: 'landscape',
   instagram_square: 'portrait',
   instagram_story: 'portrait',
+  instagram_portrait_4_5: 'portrait',
   poster_landscape: 'portrait',
   poster_portrait_a4: 'portrait',
   custom: 'landscape',
@@ -128,6 +136,7 @@ export const BACKGROUND_TEMPLATES = {
   facebook_post: 'public/templates/bg-pattern.png',
   instagram_square: 'public/templates/bg-pattern.png',
   instagram_story: 'public/templates/bg-pattern.png',
+  instagram_portrait_4_5: 'public/templates/bg-pattern.png',
   poster_landscape: 'public/templates/bg-5by8.png',
   poster_portrait_a4: 'public/templates/bg-a4.jpg',
   custom: 'public/templates/bg-pattern.png',
@@ -187,11 +196,11 @@ export const VARIANT_FEATURES = {
 export const spacing = (multiplier: number, posterWidthPx: number): number =>
   Math.round((posterWidthPx / 150) * multiplier);
 
-// Safe margin multipliers — nothing renders inside this zone (prevents print edge-cropping)
+// Safe margin multipliers — nothing renders inside this zone (prevents edge graphic overlap & print bleed)
 export const SAFE_MARGINS = {
-  landscape: { x: 10, y: 10 },
-  portrait: { x: 12, y: 14 }, // slightly larger for A4 print bleed
-  banner: { x: 10, y: 10 },
+  landscape: { x: 18, y: 12 },
+  portrait: { x: 20, y: 16 }, // clear of circuit border graphics
+  banner: { x: 12, y: 10 },
 } as const;
 
 // Background pattern tile scale factor (relative to poster width)

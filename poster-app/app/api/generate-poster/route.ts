@@ -195,6 +195,7 @@ export async function POST(request: NextRequest) {
     varsityLogoDataUrl: loadAssetAsDataUrl('public/templates/logo-varsity.png', 'image/png'),
     patternDataUrl: loadAssetAsDataUrl(bgPath, bgMime),
     uploadedImageDataUrl: data.imageDataUrl ?? null,
+    partnerLogoDataUrl: data.partnerLogoDataUrl ?? null,
   };
 
   // QR code generation (server-side, portrait variant only)
@@ -218,6 +219,9 @@ export async function POST(request: NextRequest) {
     subtitle: data.subtitle,
     clubLogoPosition: data.clubLogoPosition,
     varsityLogoPosition: data.varsityLogoPosition,
+    hasPartnerLogo: data.hasPartnerLogo,
+    partnerLogoDataUrl: data.partnerLogoDataUrl,
+    partnerLogoPosition: data.partnerLogoPosition,
     bulletList: data.bulletList,
     bulletIcons: data.bulletIcons,
     hasTable: data.hasTable,

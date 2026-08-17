@@ -33,6 +33,7 @@ export const PosterFormSchema = z.object({
     'facebook_post',
     'instagram_square',
     'instagram_story',
+    'instagram_portrait_4_5',
     'poster_landscape',
     'poster_portrait_a4',
     'custom',
@@ -45,6 +46,11 @@ export const PosterFormSchema = z.object({
   subtitle: z.string().optional().default(''),
   clubLogoPosition: LogoPositionSchema.default('top-center'),
   varsityLogoPosition: LogoPositionSchema.default('bottom-center'),
+
+  // ── Partner / Sponsor Logo ────────────────
+  hasPartnerLogo: z.boolean().default(false),
+  partnerLogoDataUrl: z.string().optional(),
+  partnerLogoPosition: LogoPositionSchema.default('top-right'),
 
   // ── Body content ──────────────────────────
   bulletList: z.array(z.string()).default([]),
